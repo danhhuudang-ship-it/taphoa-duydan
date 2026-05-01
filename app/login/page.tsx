@@ -56,8 +56,8 @@ export default function LoginPage() {
               <Sparkles className="size-6" />
             </motion.div>
             <div>
-              <div className="text-xl font-bold text-gradient">Sapo POS</div>
-              <div className="text-xs text-slate-300">Bán hàng thông minh, mượt như lụa</div>
+              <div className="text-xl font-bold text-gradient">Bán hàng thông minh</div>
+              <div className="text-xs text-slate-300">cùng Danh Hữu Đang</div>
             </div>
           </div>
 

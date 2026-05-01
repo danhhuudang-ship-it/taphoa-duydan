@@ -4,8 +4,8 @@ import { Toaster } from 'react-hot-toast';
 import BackgroundFX from '@/components/BackgroundFX';
 
 export const metadata: Metadata = {
-  title: 'Sapo POS — Bán hàng thông minh',
-  description: 'Phần mềm POS hiện đại — bán hàng, quản lý kho, khách hàng, báo cáo',
+  title: 'Bán hàng thông minh cùng Danh Hữu Đang',
+  description: 'Phần mềm bán hàng thông minh — POS, quản lý kho, khách hàng, báo cáo',
 };
 
 export const viewport: Viewport = {

@@ -22,7 +22,7 @@ const links = [
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [shopName, setShopName] = useState('Sapo POS');
+  const [shopName, setShopName] = useState('Bán hàng thông minh');
 
   useEffect(() => {
     (async () => {
@@ -50,7 +50,7 @@ export default function Sidebar() {
         </motion.div>
         <div className="min-w-0">
           <div className="font-bold text-gradient truncate">{shopName}</div>
-          <div className="text-[11px] text-slate-400">Bán hàng thông minh</div>
+          <div className="text-[11px] text-slate-400">cùng Danh Hữu Đang</div>
         </div>
       </Link>
 

@@ -1,6 +1,6 @@
-# 🛒 Sapo POS — Phần mềm bán hàng (Next.js + Supabase)
+# 🛒 Bán hàng thông minh cùng Danh Hữu Đang (Next.js + Supabase)
 
-App POS hoàn chỉnh phong cách KiotViet/Misa/Tendoo — Next.js 14 + Tailwind + Framer Motion + Supabase.
+Phần mềm bán hàng phong cách KiotViet/Misa/Tendoo — Next.js 14 + Tailwind + Framer Motion + Supabase.
 
 Tính năng:
 - 🔐 Đăng nhập / đăng ký (Supabase Auth)
