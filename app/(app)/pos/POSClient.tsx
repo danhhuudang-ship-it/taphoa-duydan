@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { createClient } from '@/lib/supabase/client';
 import type { Product, Category, CartItem, Customer } from '@/lib/types';
 import { cn, formatCurrency, genOrderCode } from '@/lib/utils';
+import { useGlow } from '@/components/HoverGlow';
 
 export default function POSClient() {
   const [products, setProducts]   = useState<Product[]>([]);
@@ -23,6 +24,7 @@ export default function POSClient() {
   const [showPay, setShowPay]       = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [cartOpen, setCartOpen]     = useState(false);
+  const glow = useGlow();
 
   useEffect(() => {
     (async () => {
@@ -160,10 +162,10 @@ export default function POSClient() {
           <button
             onClick={() => setActiveCat('all')}
             className={cn(
-              'px-3.5 py-2 rounded-full text-sm font-semibold transition',
+              'chip px-3.5 py-2 rounded-full text-sm font-semibold border',
               activeCat === 'all'
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'bg-white text-slate-700 border border-slate-200 hover:border-indigo-300'
+                ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200'
+                : 'bg-white text-slate-700 border-slate-200 hover:border-indigo-300 hover:shadow-sm'
             )}
           >
             Tất cả
@@ -173,10 +175,10 @@ export default function POSClient() {
               key={c.id}
               onClick={() => setActiveCat(c.id)}
               className={cn(
-                'px-3.5 py-2 rounded-full text-sm font-semibold transition flex items-center gap-1.5',
+                'chip px-3.5 py-2 rounded-full text-sm font-semibold border flex items-center gap-1.5',
                 activeCat === c.id
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'bg-white text-slate-700 border border-slate-200 hover:border-indigo-300'
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-indigo-300 hover:shadow-sm'
               )}
             >
               <span>{c.icon}</span> {c.name}
@@ -190,7 +192,8 @@ export default function POSClient() {
             <button
               key={p.id}
               onClick={() => addToCart(p)}
-              className="card card-hover p-2.5 text-left flex flex-col gap-2 active:scale-[0.98] transition-transform"
+              onMouseMove={glow.onMouseMove}
+              className="glow-card bounce p-2.5 text-left flex flex-col gap-2"
               style={{ willChange: 'transform' }}
             >
               <div className="aspect-square rounded-lg bg-gradient-to-br from-indigo-50 to-violet-100 flex items-center justify-center text-3xl overflow-hidden">

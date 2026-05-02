@@ -1,6 +1,7 @@
 'use client';
 import { LucideIcon } from 'lucide-react';
 import { cn, formatCurrency, formatNumber } from '@/lib/utils';
+import { useGlow } from '@/components/HoverGlow';
 
 export default function StatCard({
   label, value, currency, delta, icon: Icon, color = 'from-indigo-500 to-violet-600',
@@ -12,8 +13,9 @@ export default function StatCard({
   icon: LucideIcon;
   color?: string;
 }) {
+  const glow = useGlow();
   return (
-    <div className="card card-hover p-4 md:p-5">
+    <div onMouseMove={glow.onMouseMove} className="glow-card bounce p-4 md:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="text-[11px] md:text-xs font-semibold uppercase tracking-wide text-slate-500 truncate">{label}</div>
@@ -27,7 +29,7 @@ export default function StatCard({
           )}
         </div>
         <div className={cn(
-          'shrink-0 size-10 md:size-12 rounded-xl flex items-center justify-center bg-gradient-to-br shadow-sm',
+          'shrink-0 size-10 md:size-12 rounded-xl flex items-center justify-center bg-gradient-to-br shadow-md',
           color
         )}>
           <Icon className="size-5 text-white shrink-0" />

@@ -188,3 +188,106 @@ kbd {
 @media print {
   .no-print { display: none !important; }
 }
+
+
+/* ===== HOVER GLOW (theo chuột) ===== */
+/* Áp dụng cho .glow-card và .card-hover - per-element, không global listener */
+.glow-card,
+.card-hover {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.glow-card::before,
+.card-hover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    280px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(99, 102, 241, 0.10),
+    rgba(168, 85, 247, 0.05) 30%,
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.glow-card:hover::before,
+.card-hover:hover::before {
+  opacity: 1;
+}
+.glow-card > *,
+.card-hover > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== BOUNCY BUTTONS ===== */
+.bounce {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+}
+.bounce:hover { transform: translateY(-1px); }
+.bounce:active { transform: scale(0.95); }
+
+.btn-primary,
+.btn-edit,
+.btn-delete,
+.btn-ghost {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.15s, box-shadow 0.2s, filter 0.15s;
+}
+.btn-primary:active,
+.btn-edit:active,
+.btn-delete:active,
+.btn-ghost:active {
+  transform: scale(0.94);
+}
+.btn-primary:hover { transform: translateY(-1px); }
+
+/* ===== NAV LINK BOUNCE ===== */
+.nav-link {
+  transition: background 0.15s, color 0.15s, padding-left 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nav-link:hover { padding-left: 1.05rem; }
+.nav-link.active { padding-left: 0.9rem; }
+
+/* ===== SHIMMER on important text ===== */
+@keyframes shimmer-text {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+.shimmer-text {
+  background: linear-gradient(90deg, #4f46e5, #ec4899, #06b6d4, #4f46e5);
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: shimmer-text 6s ease-in-out infinite;
+}
+
+/* ===== PULSE for active nav indicator ===== */
+@keyframes ping-soft {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.ping-soft::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: currentColor; opacity: 0.3;
+  animation: ping-soft 1.6s ease-out infinite;
+  pointer-events: none;
+}
+
+/* ===== CATEGORY CHIP bounce ===== */
+.chip {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s, color 0.15s, box-shadow 0.2s, border-color 0.15s;
+}
+.chip:hover { transform: translateY(-2px); }
+.chip:active { transform: scale(0.94); }
+
+/* ===== Stagger fade-in for grids ===== */
+@keyframes pop-in {
+  0% { opacity: 0; transform: translateY(8px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.pop-in { animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }

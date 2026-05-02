@@ -45,7 +45,7 @@ export default function OrdersClient() {
             <motion.div
               key={o.id} layout
               initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="glow-card p-3 flex items-center gap-3"
+              className="glow-card bounce p-3 flex items-center gap-3"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">

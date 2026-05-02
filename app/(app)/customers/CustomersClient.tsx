@@ -68,7 +68,7 @@ export default function CustomersClient() {
               key={c.id} layout
               initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
               whileHover={{ y: -3 }}
-              className="glow-card p-4"
+              className="glow-card bounce p-4"
             >
               <div className="flex items-start gap-3">
                 <div className="size-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-pink-500 flex items-center justify-center text-slate-900 font-bold shadow-glow">

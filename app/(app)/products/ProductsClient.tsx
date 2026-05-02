@@ -1,18 +1,20 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Pencil, Trash2, Search, X, Save } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, X, Save, FileSpreadsheet } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { createClient } from '@/lib/supabase/client';
 import type { Product, Category } from '@/lib/types';
 import { cn, formatCurrency } from '@/lib/utils';
 import ImageUploader from '@/components/ImageUploader';
+import BulkImport from '@/components/BulkImport';
 
 export default function ProductsClient() {
   const [items, setItems] = useState<Product[]>([]);
   const [cats, setCats]   = useState<Category[]>([]);
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<Partial<Product> | null>(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   const load = async () => {
     const supabase = createClient();
@@ -68,6 +70,9 @@ export default function ProductsClient() {
           <input className="bg-transparent outline-none text-sm flex-1" placeholder="Tìm theo tên hoặc SKU..."
                  value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
+        <button onClick={() => setBulkOpen(true)} className="btn-ghost shrink-0">
+          <FileSpreadsheet className="size-4" /> <span className="hidden sm:inline">Nhập hàng loạt</span><span className="sm:hidden">Excel</span>
+        </button>
         <motion.button whileHover={{ y:-2 }} whileTap={{ scale: 0.97 }}
           onClick={() => setEditing({ active: true, stock: 0, min_stock: 5, price: 0, cost: 0, unit: 'cái' })}
           className="btn-primary"><Plus className="size-4" /> <span className="hidden sm:inline">Thêm sản phẩm</span><span className="sm:hidden">Thêm</span></motion.button>
@@ -80,7 +85,7 @@ export default function ProductsClient() {
             <motion.div
               key={p.id} layout
               initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="glow-card p-3"
+              className="glow-card bounce p-3"
             >
               <div className="flex items-start gap-3">
                 <div className="size-12 rounded-xl bg-gradient-to-br from-indigo-500/30 to-fuchsia-500/30 flex items-center justify-center text-xl shrink-0 overflow-hidden">
@@ -273,6 +278,13 @@ export default function ProductsClient() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <BulkImport
+        open={bulkOpen}
+        onClose={() => setBulkOpen(false)}
+        categories={cats}
+        onImported={load}
+      />
     </div>
   );
 }
