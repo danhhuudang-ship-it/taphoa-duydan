@@ -95,15 +95,15 @@ export default function ProductsClient() {
                   <div className="font-semibold text-sm truncate">{p.name}</div>
                   <div className="text-[11px] text-slate-400 font-mono truncate">{p.sku} {p.categories?.name ? `· ${p.categories.name}` : ''}</div>
                   <div className="flex items-center gap-2 mt-1">
-                    <div className="font-bold text-sm text-gradient">{formatCurrency(p.price)}</div>
+                    <div className="font-bold text-sm text-indigo-700 font-bold">{formatCurrency(p.price)}</div>
                     <span className={cn('badge text-[10px]', p.stock <= 0 ? 'badge-danger' : p.stock < (p.min_stock || 5) ? 'badge-warn' : 'badge-success')}>
                       {p.stock} {p.unit}
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-1 shrink-0">
-                  <button onClick={() => setEditing(p)} className="size-8 rounded-lg bg-indigo-500/20 active:bg-indigo-500/30 text-indigo-200 flex items-center justify-center"><Pencil className="size-3.5" /></button>
-                  <button onClick={() => remove(p.id)} className="size-8 rounded-lg bg-rose-500/20 active:bg-rose-500/30 text-rose-200 flex items-center justify-center"><Trash2 className="size-3.5" /></button>
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  <button onClick={() => setEditing(p)} className="btn-edit !min-h-9 !py-1.5 !px-2.5"><Pencil className="size-3.5" /> Sửa</button>
+                  <button onClick={() => remove(p.id)} className="btn-delete !min-h-9 !py-1.5 !px-2.5"><Trash2 className="size-3.5" /> Xoá</button>
                 </div>
               </div>
             </motion.div>
@@ -116,7 +116,7 @@ export default function ProductsClient() {
       <div className="hidden md:block glass-strong rounded-2xl overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-white/10 bg-white/[0.02]">
+            <tr className="border-b border-slate-200 bg-slate-50">
               <th className="text-left text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-4 py-3">Sản phẩm</th>
               <th className="text-left text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-3 py-3 w-32">Danh mục</th>
               <th className="text-right text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-3 py-3 w-32">Giá</th>
@@ -130,7 +130,7 @@ export default function ProductsClient() {
                 <motion.tr
                   key={p.id} layout
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="border-b border-white/5 hover:bg-white/[0.03] transition"
+                  className="border-b border-slate-100 hover:bg-slate-50 transition"
                 >
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-3 min-w-0">
@@ -148,7 +148,7 @@ export default function ProductsClient() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-3 py-2.5 text-sm text-slate-300 truncate">{p.categories?.name || '—'}</td>
+                  <td className="px-3 py-2.5 text-sm text-slate-700 truncate">{p.categories?.name || '—'}</td>
                   <td className="px-3 py-2.5 text-right font-semibold text-sm whitespace-nowrap">{formatCurrency(p.price)}</td>
                   <td className="px-3 py-2.5 text-center">
                     <span className={cn('badge whitespace-nowrap', p.stock <= 0 ? 'badge-danger' : p.stock < (p.min_stock || 5) ? 'badge-warn' : 'badge-success')}>
@@ -156,9 +156,9 @@ export default function ProductsClient() {
                     </span>
                   </td>
                   <td className="px-3 py-2.5 text-right">
-                    <div className="inline-flex gap-1">
-                      <button onClick={() => setEditing(p)} title="Sửa" className="size-8 rounded-lg bg-white/5 hover:bg-indigo-500/20 hover:text-indigo-200 flex items-center justify-center transition"><Pencil className="size-4" /></button>
-                      <button onClick={() => remove(p.id)} title="Xoá" className="size-8 rounded-lg bg-white/5 hover:bg-rose-500/20 hover:text-rose-200 flex items-center justify-center transition"><Trash2 className="size-4" /></button>
+                    <div className="inline-flex gap-1.5">
+                      <button onClick={() => setEditing(p)} title="Sửa" className="btn-edit !min-h-9 !py-1.5 !px-2.5"><Pencil className="size-4" /></button>
+                      <button onClick={() => remove(p.id)} title="Xoá" className="btn-delete !min-h-9 !py-1.5 !px-2.5"><Trash2 className="size-4" /></button>
                     </div>
                   </td>
                 </motion.tr>
@@ -176,7 +176,7 @@ export default function ProductsClient() {
         {editing && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-0 md:p-4"
+            className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-slate-900/40 p-0 md:p-4"
             onClick={() => setEditing(null)}
           >
             <motion.div
@@ -188,10 +188,10 @@ export default function ProductsClient() {
               className="glass-strong rounded-t-3xl md:rounded-3xl w-full max-w-2xl max-h-[92vh] md:max-h-[88vh] flex flex-col overflow-hidden"
             >
               {/* Header sticky */}
-              <div className="shrink-0 px-5 py-4 border-b border-white/10 flex items-center justify-between bg-black/20">
-                <div className="md:hidden mx-auto absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-white/20" />
+              <div className="shrink-0 px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-100">
+                <div className="md:hidden mx-auto absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-slate-200" />
                 <h3 className="text-lg md:text-xl font-bold">{editing.id ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}</h3>
-                <button onClick={() => setEditing(null)} className="size-9 rounded-lg hover:bg-white/10 flex items-center justify-center">
+                <button onClick={() => setEditing(null)} className="size-9 rounded-lg hover:bg-slate-200 flex items-center justify-center">
                   <X className="size-5" />
                 </button>
               </div>
@@ -199,45 +199,45 @@ export default function ProductsClient() {
               {/* Body scrollable */}
               <div className="flex-1 overflow-y-auto p-5 space-y-3 overscroll-contain">
                 <div>
-                  <label className="text-xs text-slate-300">Tên sản phẩm *</label>
+                  <label className="text-xs text-slate-700">Tên sản phẩm *</label>
                   <input className="input mt-1" value={editing.name || ''} onChange={(e) => setEditing({ ...editing, name: e.target.value })} placeholder="Vd: Coca-Cola lon 330ml" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-slate-300">SKU *</label>
+                    <label className="text-xs text-slate-700">SKU *</label>
                     <input className="input mt-1" value={editing.sku || ''} onChange={(e) => setEditing({ ...editing, sku: e.target.value })} placeholder="SKU0001" />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-300">Đơn vị</label>
+                    <label className="text-xs text-slate-700">Đơn vị</label>
                     <input className="input mt-1" value={editing.unit || ''} onChange={(e) => setEditing({ ...editing, unit: e.target.value })} placeholder="cái / lon / chai" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-slate-300">Giá bán *</label>
+                    <label className="text-xs text-slate-700">Giá bán *</label>
                     <input type="number" inputMode="numeric" className="input mt-1" value={editing.price ?? 0} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) })} />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-300">Giá vốn</label>
+                    <label className="text-xs text-slate-700">Giá vốn</label>
                     <input type="number" inputMode="numeric" className="input mt-1" value={editing.cost ?? 0} onChange={(e) => setEditing({ ...editing, cost: Number(e.target.value) })} />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-slate-300">Tồn kho</label>
+                    <label className="text-xs text-slate-700">Tồn kho</label>
                     <input type="number" inputMode="numeric" className="input mt-1" value={editing.stock ?? 0} onChange={(e) => setEditing({ ...editing, stock: Number(e.target.value) })} />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-300">Tồn tối thiểu</label>
+                    <label className="text-xs text-slate-700">Tồn tối thiểu</label>
                     <input type="number" inputMode="numeric" className="input mt-1" value={editing.min_stock ?? 5} onChange={(e) => setEditing({ ...editing, min_stock: Number(e.target.value) })} />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs text-slate-300">Danh mục</label>
+                  <label className="text-xs text-slate-700">Danh mục</label>
                   <select className="input mt-1 [&>option]:bg-slate-900" value={editing.category_id || ''} onChange={(e) => setEditing({ ...editing, category_id: e.target.value || null })}>
                     <option value="">— Không —</option>
                     {cats.map((c) => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
@@ -245,7 +245,7 @@ export default function ProductsClient() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-slate-300">Ảnh sản phẩm</label>
+                  <label className="text-xs text-slate-700">Ảnh sản phẩm</label>
                   <div className="mt-1">
                     <ImageUploader
                       value={editing.image_url}
@@ -255,7 +255,7 @@ export default function ProductsClient() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-slate-300">Mô tả</label>
+                  <label className="text-xs text-slate-700">Mô tả</label>
                   <textarea className="input mt-1" rows={2} value={editing.description || ''} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
                 </div>
 
@@ -263,7 +263,7 @@ export default function ProductsClient() {
               </div>
 
               {/* Footer sticky */}
-              <div className="shrink-0 px-5 py-3 border-t border-white/10 bg-black/20 flex justify-end gap-2 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+              <div className="shrink-0 px-5 py-3 border-t border-slate-200 bg-slate-100 flex justify-end gap-2 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
                 <button onClick={() => setEditing(null)} className="btn-ghost">Hủy</button>
                 <motion.button whileTap={{ scale: 0.97 }} onClick={save} className="btn-primary">
                   <Save className="size-4" /> Lưu

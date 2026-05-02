@@ -62,7 +62,7 @@ export default function ReportsClient() {
         <span className="text-sm text-slate-400">Khoảng:</span>
         {[7, 14, 30].map((d) => (
           <button key={d} onClick={() => setRange(d as 7|14|30)}
-            className={`btn-ghost ${range === d ? '!bg-white/10 !border-white/20 !text-white' : ''}`}>
+            className={`btn-ghost ${range === d ? '!bg-slate-200 !border-slate-300 !text-slate-900' : ''}`}>
             {d} ngày
           </button>
         ))}

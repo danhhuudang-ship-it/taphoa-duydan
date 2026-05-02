@@ -87,19 +87,19 @@ export default function SettingsClient() {
     <div className="space-y-6 max-w-3xl">
       {/* Shop info */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="glow-card p-5">
-        <h3 className="font-semibold mb-1 flex items-center gap-2"><Store className="size-4 text-indigo-400" /> Thông tin cửa hàng</h3>
+        <h3 className="font-semibold mb-1 flex items-center gap-2"><Store className="size-4 text-indigo-600" /> Thông tin cửa hàng</h3>
         <p className="text-xs text-slate-400 mb-4">Hiển thị trên giao diện và hóa đơn.</p>
         <div className="grid md:grid-cols-2 gap-3">
           <div className="md:col-span-2">
-            <label className="text-xs text-slate-300">Tên cửa hàng</label>
+            <label className="text-xs text-slate-700">Tên cửa hàng</label>
             <input className="input mt-1" value={s.shop_name || ''} onChange={(e) => setS({ ...s, shop_name: e.target.value })} placeholder="Tạp Hoá Duy Đan" />
           </div>
           <div>
-            <label className="text-xs text-slate-300 flex items-center gap-1"><Phone className="size-3.5" /> Số điện thoại</label>
+            <label className="text-xs text-slate-700 flex items-center gap-1"><Phone className="size-3.5" /> Số điện thoại</label>
             <input className="input mt-1" value={s.shop_phone || ''} onChange={(e) => setS({ ...s, shop_phone: e.target.value })} placeholder="0901 234 567" />
           </div>
           <div>
-            <label className="text-xs text-slate-300 flex items-center gap-1"><MapPin className="size-3.5" /> Địa chỉ</label>
+            <label className="text-xs text-slate-700 flex items-center gap-1"><MapPin className="size-3.5" /> Địa chỉ</label>
             <input className="input mt-1" value={s.shop_address || ''} onChange={(e) => setS({ ...s, shop_address: e.target.value })} placeholder="123 Lê Lợi, Q.1, TP.HCM" />
           </div>
         </div>
@@ -108,7 +108,7 @@ export default function SettingsClient() {
       {/* Telegram */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="glow-card p-5">
         <div className="flex items-start justify-between mb-1">
-          <h3 className="font-semibold flex items-center gap-2"><MessageCircle className="size-4 text-cyan-400" /> Thông báo Telegram</h3>
+          <h3 className="font-semibold flex items-center gap-2"><MessageCircle className="size-4 text-cyan-700" /> Thông báo Telegram</h3>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -124,12 +124,12 @@ export default function SettingsClient() {
         </div>
         <p className="text-xs text-slate-400 mb-4">
           Khi bật, mỗi đơn POS sẽ tự động gửi tin nhắn vào Telegram của bạn.{' '}
-          <a className="underline text-cyan-300" target="_blank" rel="noreferrer" href="https://core.telegram.org/bots/features#botfather">Cách tạo bot</a>
+          <a className="underline text-cyan-700" target="_blank" rel="noreferrer" href="https://core.telegram.org/bots/features#botfather">Cách tạo bot</a>
         </p>
 
         <div className="grid md:grid-cols-2 gap-3">
           <div className="md:col-span-2">
-            <label className="text-xs text-slate-300">Bot Token <span className="text-slate-500">(từ @BotFather)</span></label>
+            <label className="text-xs text-slate-700">Bot Token <span className="text-slate-500">(từ @BotFather)</span></label>
             <div className="relative">
               <input
                 type={showToken ? 'text' : 'password'}
@@ -138,22 +138,22 @@ export default function SettingsClient() {
                 onChange={(e) => setS({ ...s, telegram_bot_token: e.target.value })}
                 placeholder="123456789:ABCdefGHIjklMNOpqrSTUvwxYZ"
               />
-              <button onClick={() => setShowToken((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+              <button onClick={() => setShowToken((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900">
                 {showToken ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>
             </div>
           </div>
           <div className="md:col-span-2">
-            <label className="text-xs text-slate-300">Chat ID <span className="text-slate-500">(ID Telegram của bạn)</span></label>
+            <label className="text-xs text-slate-700">Chat ID <span className="text-slate-500">(ID Telegram của bạn)</span></label>
             <input className="input mt-1" value={s.telegram_chat_id || ''} onChange={(e) => setS({ ...s, telegram_chat_id: e.target.value })} placeholder="123456789 hoặc -1001234567890" />
           </div>
         </div>
 
         <div className="mt-4 p-3 rounded-xl bg-cyan-500/5 border border-cyan-500/20 text-xs text-cyan-100/80 leading-relaxed">
           <b>Hướng dẫn:</b><br />
-          1. Telegram → tìm <code className="px-1 bg-white/10 rounded">@BotFather</code> → <code className="px-1 bg-white/10 rounded">/newbot</code> → đặt tên → bạn nhận <b>Bot Token</b><br />
+          1. Telegram → tìm <code className="px-1 bg-slate-200 rounded">@BotFather</code> → <code className="px-1 bg-slate-200 rounded">/newbot</code> → đặt tên → bạn nhận <b>Bot Token</b><br />
           2. Tìm bot vừa tạo → bấm <b>Start</b> hoặc nhắn 1 tin bất kỳ<br />
-          3. Mở: <code className="px-1 bg-white/10 rounded">https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> → tìm <code className="px-1 bg-white/10 rounded">"chat":{"{"}"id":...{"}"}</code> → đó là <b>Chat ID</b>
+          3. Mở: <code className="px-1 bg-slate-200 rounded">https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> → tìm <code className="px-1 bg-slate-200 rounded">"chat":{"{"}"id":...{"}"}</code> → đó là <b>Chat ID</b>
         </div>
 
         <div className="mt-4 flex gap-2">
@@ -170,12 +170,12 @@ export default function SettingsClient() {
 
       {/* DANGER ZONE */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glow-card p-5 border-rose-500/30">
-        <h3 className="font-semibold flex items-center gap-2 text-rose-300"><AlertTriangle className="size-4" /> Vùng nguy hiểm</h3>
+        <h3 className="font-semibold flex items-center gap-2 text-rose-600"><AlertTriangle className="size-4" /> Vùng nguy hiểm</h3>
         <p className="text-xs text-slate-400 mt-1 mb-4">Các thao tác sau không thể hoàn tác — hãy chắc chắn.</p>
 
         <div className="grid md:grid-cols-2 gap-3">
           <div className="glass p-4">
-            <div className="font-semibold flex items-center gap-2"><RotateCcw className="size-4 text-amber-300" /> Reset đơn hàng & doanh thu</div>
+            <div className="font-semibold flex items-center gap-2"><RotateCcw className="size-4 text-amber-600" /> Reset đơn hàng & doanh thu</div>
             <p className="text-xs text-slate-400 mt-1 leading-relaxed">
               Xóa <b>toàn bộ đơn hàng</b>, lịch sử bán, reset chi tiêu khách về 0.
               <br /><span className="text-emerald-300">Giữ lại</span>: sản phẩm, danh mục, khách hàng.
@@ -187,7 +187,7 @@ export default function SettingsClient() {
           </div>
 
           <div className="glass p-4">
-            <div className="font-semibold flex items-center gap-2"><Database className="size-4 text-rose-300" /> Reset toàn bộ + nạp lại demo</div>
+            <div className="font-semibold flex items-center gap-2"><Database className="size-4 text-rose-600" /> Reset toàn bộ + nạp lại demo</div>
             <p className="text-xs text-slate-400 mt-1 leading-relaxed">
               Xóa <b>tất cả</b> (đơn, sản phẩm, danh mục, khách hàng) rồi nạp lại 24 sản phẩm + 5 danh mục + 4 khách mẫu.
               <br /><i>Dùng khi muốn bắt đầu lại từ đầu.</i>
@@ -201,8 +201,8 @@ export default function SettingsClient() {
 
       {/* Database hint */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="glow-card p-5">
-        <h3 className="font-semibold flex items-center gap-2"><Database className="size-4 text-emerald-400" /> Xem database ở đâu?</h3>
-        <ol className="text-sm text-slate-300 mt-2 space-y-1 list-decimal pl-5">
+        <h3 className="font-semibold flex items-center gap-2"><Database className="size-4 text-emerald-600" /> Xem database ở đâu?</h3>
+        <ol className="text-sm text-slate-700 mt-2 space-y-1 list-decimal pl-5">
           <li>Vào <a className="underline text-emerald-300" href="https://supabase.com/dashboard" target="_blank" rel="noreferrer">supabase.com/dashboard</a> → chọn project của bạn</li>
           <li>Sidebar trái → <b>Table Editor</b> (icon hình bảng) — xem & sửa từng dòng</li>
           <li>Hoặc <b>SQL Editor</b> để chạy lệnh SQL tùy ý</li>
@@ -216,7 +216,7 @@ export default function SettingsClient() {
         {confirmType && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setConfirmType(null)}
-            className="fixed inset-0 z-50 grid place-items-center bg-black/60 backdrop-blur-sm p-4">
+            className="fixed inset-0 z-50 grid place-items-center bg-slate-900/40 p-4">
             <motion.div onClick={(e) => e.stopPropagation()}
               initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
               className="glass-strong rounded-3xl p-6 w-full max-w-md">
@@ -226,7 +226,7 @@ export default function SettingsClient() {
                 </div>
                 <h3 className="text-lg font-bold">Xác nhận</h3>
               </div>
-              <p className="text-sm text-slate-300">
+              <p className="text-sm text-slate-700">
                 {confirmType === 'reset_orders'
                   ? 'Bạn chắc chắn muốn XÓA TOÀN BỘ đơn hàng và reset doanh thu? Sản phẩm và khách hàng được giữ nguyên.'
                   : 'Bạn chắc chắn muốn XÓA TẤT CẢ DỮ LIỆU rồi nạp lại bộ demo (24 SP + 5 danh mục + 4 khách)?'}

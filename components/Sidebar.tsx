@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import {
   LayoutDashboard, ShoppingCart, Package, Users, Receipt, BarChart3, LogOut, Store, Settings as SettingsIcon,
 } from 'lucide-react';
@@ -40,47 +39,38 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="hidden md:flex w-64 shrink-0 flex-col gap-2 p-4 sticky top-0 h-screen">
-      <Link href="/dashboard" className="flex items-center gap-2 px-2 py-3 group">
-        <motion.div
-          whileHover={{ rotate: 12, scale: 1.08 }}
-          className="size-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-pink-500 shadow-glow"
-        >
-          <Store className="size-5" />
-        </motion.div>
+    <aside className="hidden md:flex w-64 shrink-0 flex-col gap-1 p-4 sticky top-0 h-screen bg-white border-r border-slate-200">
+      <Link href="/dashboard" className="flex items-center gap-2.5 px-2 py-3 mb-3">
+        <div className="size-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600 shadow-md">
+          <Store className="size-5 text-white" />
+        </div>
         <div className="min-w-0">
-          <div className="font-bold text-gradient truncate">{shopName}</div>
-          <div className="text-[11px] text-slate-400">cùng Danh Hữu Đang</div>
+          <div className="font-bold text-slate-900 truncate text-[15px]">{shopName}</div>
+          <div className="text-[11px] text-slate-500">cùng Danh Hữu Đang</div>
         </div>
       </Link>
 
-      <nav className="mt-3 flex flex-col gap-1">
+      <nav className="flex flex-col gap-0.5">
         {links.map((l) => {
           const Icon = l.icon;
           const active = pathname?.startsWith(l.href);
           return (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={cn('nav-link group', active && 'active')}
-            >
-              <motion.span whileHover={{ scale: 1.15, rotate: -6 }} className="text-slate-300 group-hover:text-white">
-                <Icon className="size-[18px]" />
-              </motion.span>
-              <span className="text-sm font-medium">{l.label}</span>
+            <Link key={l.href} href={l.href} className={cn('nav-link', active && 'active')}>
+              <Icon className="size-[20px] shrink-0" />
+              <span className="text-[14px]">{l.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="mt-auto glass p-3 text-xs text-slate-400">
-        <div className="text-gradient font-semibold mb-1">Mẹo nhanh</div>
-        Nhấn <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/10">F2</kbd> để mở thanh toán nhanh trên POS.
+      <div className="mt-auto p-3 rounded-xl bg-indigo-50 border border-indigo-100 text-xs text-slate-600">
+        <div className="font-semibold text-indigo-700 mb-1">Mẹo nhanh</div>
+        Nhấn <kbd>F2</kbd> để mở thanh toán nhanh trên POS.
       </div>
 
-      <button onClick={logout} className="nav-link mt-1 hover:!text-rose-300">
-        <LogOut className="size-[18px]" />
-        <span className="text-sm">Đăng xuất</span>
+      <button onClick={logout} className="nav-link mt-1 hover:!bg-rose-50 hover:!text-rose-600">
+        <LogOut className="size-[20px]" />
+        <span className="text-[14px]">Đăng xuất</span>
       </button>
     </aside>
   );

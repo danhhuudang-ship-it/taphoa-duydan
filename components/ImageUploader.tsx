@@ -111,14 +111,14 @@ export default function ImageUploader({
       />
 
       {value ? (
-        <div className="relative group rounded-xl overflow-hidden border border-white/10 bg-white/5">
+        <div className="relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={value} alt="preview" className="w-full h-44 object-cover" />
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
-            <button type="button" onClick={() => fileRef.current?.click()} className="btn-ghost !bg-white/20 !text-white">
+          <div className="absolute inset-0 bg-slate-900/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+            <button type="button" onClick={() => fileRef.current?.click()} className="btn-ghost !bg-slate-200 !text-slate-900">
               <Upload className="size-4" /> Đổi ảnh
             </button>
-            <button type="button" onClick={() => onChange(null)} className="btn-ghost !bg-rose-500/30 !text-white !border-rose-500/40">
+            <button type="button" onClick={() => onChange(null)} className="btn-ghost !bg-rose-500/30 !text-slate-900 !border-rose-500/40">
               <X className="size-4" /> Xoá
             </button>
           </div>
@@ -126,13 +126,13 @@ export default function ImageUploader({
       ) : (
         <div className="space-y-3">
           {/* TABS */}
-          <div className="flex gap-2 p-1 rounded-lg bg-white/5 border border-white/10">
+          <div className="flex gap-2 p-1 rounded-lg bg-slate-100 border border-slate-200">
             <button
               type="button"
               onClick={() => setTab('upload')}
               className={cn(
                 'flex-1 px-3 py-1.5 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition',
-                tab === 'upload' ? 'bg-gradient-to-r from-indigo-500/30 to-fuchsia-500/30 text-white shadow-glow' : 'text-slate-400 hover:text-white'
+                tab === 'upload' ? 'bg-gradient-to-r from-indigo-500/30 to-fuchsia-500/30 text-slate-900 shadow-glow' : 'text-slate-400 hover:text-slate-900'
               )}
             >
               <Upload className="size-4" /> Tải lên
@@ -142,7 +142,7 @@ export default function ImageUploader({
               onClick={() => setTab('url')}
               className={cn(
                 'flex-1 px-3 py-1.5 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition',
-                tab === 'url' ? 'bg-gradient-to-r from-indigo-500/30 to-fuchsia-500/30 text-white shadow-glow' : 'text-slate-400 hover:text-white'
+                tab === 'url' ? 'bg-gradient-to-r from-indigo-500/30 to-fuchsia-500/30 text-slate-900 shadow-glow' : 'text-slate-400 hover:text-slate-900'
               )}
             >
               <HardDrive className="size-4" /> Từ Drive / URL
@@ -162,20 +162,20 @@ export default function ImageUploader({
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className={cn(
                   'w-full h-44 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1 text-sm transition',
-                  drag ? 'border-indigo-400 bg-indigo-500/10' : 'border-white/15 hover:border-white/30 bg-white/[0.03]',
+                  drag ? 'border-indigo-400 bg-indigo-500/10' : 'border-slate-200 hover:border-slate-300 bg-slate-50',
                   uploading && 'opacity-60 pointer-events-none'
                 )}
                 disabled={uploading}
               >
                 {uploading ? (
                   <>
-                    <Loader2 className="size-6 animate-spin text-indigo-400" />
-                    <span className="text-slate-300">Đang tải lên...</span>
+                    <Loader2 className="size-6 animate-spin text-indigo-600" />
+                    <span className="text-slate-700">Đang tải lên...</span>
                   </>
                 ) : (
                   <>
                     <div className="size-12 rounded-2xl bg-gradient-to-br from-indigo-500/30 to-fuchsia-500/30 flex items-center justify-center">
-                      <ImgIcon className="size-5 text-white" />
+                      <ImgIcon className="size-5 text-slate-900" />
                     </div>
                     <div className="font-medium">Click hoặc kéo ảnh vào đây</div>
                     <div className="text-xs text-slate-400">JPG / PNG / WebP — tối đa 5MB</div>
@@ -207,7 +207,7 @@ export default function ImageUploader({
                 </div>
 
                 {urlPreview && !urlError && (
-                  <div className="rounded-xl overflow-hidden border border-white/10 bg-white/5 relative">
+                  <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 relative">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={urlPreview}
@@ -222,7 +222,7 @@ export default function ImageUploader({
                 )}
 
                 <div className="text-[11px] text-slate-400 leading-relaxed bg-cyan-500/5 border border-cyan-500/15 rounded-lg p-2.5">
-                  <b className="text-cyan-200">Mẹo Google Drive:</b> mở ảnh trên Drive → bấm <b>Share</b> → đổi quyền sang
+                  <b className="text-cyan-700">Mẹo Google Drive:</b> mở ảnh trên Drive → bấm <b>Share</b> → đổi quyền sang
                   <b> "Anyone with the link"</b> → copy link → dán vào đây. App tự động chuyển sang định dạng ảnh trực tiếp.
                 </div>
               </motion.div>

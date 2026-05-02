@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0b0d1a',
+  themeColor: '#f6f7fb',
   width: 'device-width',
   initialScale: 1,
 };
@@ -24,10 +24,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           position="top-right"
           toastOptions={{
             style: {
-              background: 'rgba(20,22,40,0.9)',
-              color: '#e6e8ee',
-              border: '1px solid rgba(255,255,255,0.1)',
-              backdropFilter: 'blur(12px)',
+              background: '#ffffff',
+              color: '#111827',
+              border: '1px solid #e5e7eb',
+              boxShadow: '0 4px 12px rgba(15,23,42,0.08)',
             },
           }}
         />

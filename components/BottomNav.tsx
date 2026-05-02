@@ -1,7 +1,6 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
 import {
   LayoutDashboard, ShoppingCart, Package, Receipt, Settings as SettingsIcon,
 } from 'lucide-react';
@@ -18,9 +17,7 @@ const items = [
 export default function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav
-      className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-black/40 backdrop-blur-xl border-t border-white/10 px-2 pt-2 pb-[max(env(safe-area-inset-bottom),0.5rem)]"
-    >
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 px-2 pt-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] shadow-[0_-2px_10px_rgba(15,23,42,0.04)]">
       <ul className="grid grid-cols-5 gap-1">
         {items.map((it) => {
           const Ic = it.icon;
@@ -30,19 +27,12 @@ export default function BottomNav() {
               <Link
                 href={it.href}
                 className={cn(
-                  'relative flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition',
-                  active ? 'text-white' : 'text-slate-400 active:bg-white/5'
+                  'flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition',
+                  active ? 'bg-indigo-50 text-indigo-700' : 'text-slate-500 active:bg-slate-100'
                 )}
               >
-                {active && (
-                  <motion.span
-                    layoutId="bottomBarActive"
-                    className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/20 to-pink-500/20 border border-white/10"
-                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                  />
-                )}
-                <Ic className="size-[20px] relative" />
-                <span className="text-[10px] font-medium relative leading-tight">{it.label}</span>
+                <Ic className="size-[22px] shrink-0" />
+                <span className="text-[11px] font-medium leading-tight">{it.label}</span>
               </Link>
             </li>
           );

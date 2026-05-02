@@ -53,13 +53,11 @@ export default function OrdersClient() {
                   <span className="badge text-[10px]">{o.payment_method}</span>
                 </div>
                 <div className="text-[11px] text-slate-400 mt-0.5">{formatDate(o.created_at)}</div>
-                <div className="text-xs text-slate-300 truncate mt-0.5">👤 {o.customer_name || 'Khách lẻ'}</div>
+                <div className="text-xs text-slate-700 truncate mt-0.5">👤 {o.customer_name || 'Khách lẻ'}</div>
               </div>
               <div className="text-right shrink-0">
-                <div className="font-bold text-sm text-gradient">{formatCurrency(o.total)}</div>
-                <button onClick={() => open(o)} className="mt-1 px-2.5 py-1 rounded-lg bg-indigo-500/20 active:bg-indigo-500/30 text-indigo-200 text-[11px] font-medium flex items-center gap-1">
-                  <Eye className="size-3" /> Xem
-                </button>
+                <div className="font-bold text-sm text-indigo-700 font-bold">{formatCurrency(o.total)}</div>
+                <button onClick={() => open(o)} className="btn-edit !min-h-8 !py-1 !px-2 mt-1 text-[11px]"><Eye className="size-3" /> Xem</button>
               </div>
             </motion.div>
           ))}
@@ -71,7 +69,7 @@ export default function OrdersClient() {
       <div className="hidden md:block glass-strong rounded-2xl overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-white/10 bg-white/[0.02]">
+            <tr className="border-b border-slate-200 bg-slate-50">
               <th className="text-left text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-4 py-3 w-36">Mã HĐ</th>
               <th className="text-left text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-3 py-3 w-44">Thời gian</th>
               <th className="text-left text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-3 py-3">Khách</th>
@@ -82,14 +80,14 @@ export default function OrdersClient() {
           </thead>
           <tbody>
             {filtered.map((o) => (
-              <motion.tr key={o.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="border-b border-white/5 hover:bg-white/[0.03] transition">
+              <motion.tr key={o.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="border-b border-slate-100 hover:bg-slate-50 transition">
                 <td className="px-4 py-2.5 font-mono text-xs">{o.code}</td>
                 <td className="px-3 py-2.5 text-sm whitespace-nowrap">{formatDate(o.created_at)}</td>
                 <td className="px-3 py-2.5 text-sm truncate">{o.customer_name || '—'}</td>
                 <td className="px-3 py-2.5"><span className="badge">{o.payment_method}</span></td>
                 <td className="px-3 py-2.5 text-right font-semibold whitespace-nowrap">{formatCurrency(o.total)}</td>
                 <td className="px-3 py-2.5 text-right">
-                  <button onClick={() => open(o)} title="Xem chi tiết" className="size-8 rounded-lg bg-white/5 hover:bg-indigo-500/20 hover:text-indigo-200 inline-flex items-center justify-center transition"><Eye className="size-4" /></button>
+                  <button onClick={() => open(o)} title="Xem chi tiết" className="btn-edit !min-h-9 !py-1.5 !px-2.5"><Eye className="size-4" /> Xem</button>
                 </td>
               </motion.tr>
             ))}
@@ -102,16 +100,16 @@ export default function OrdersClient() {
         {detail && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setDetail(null)}
-            className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-0 md:p-4">
+            className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-slate-900/40 p-0 md:p-4">
             <motion.div onClick={(e) => e.stopPropagation()}
               initial={{ y: '100%', opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: '100%', opacity: 0 }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
               className="glass-strong rounded-t-3xl md:rounded-3xl w-full max-w-lg max-h-[92vh] md:max-h-[88vh] flex flex-col overflow-hidden">
 
-              <div className="shrink-0 px-5 py-4 border-b border-white/10 flex items-center justify-between bg-black/20 relative">
-                <div className="md:hidden mx-auto absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-white/20" />
+              <div className="shrink-0 px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-100 relative">
+                <div className="md:hidden mx-auto absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-slate-200" />
                 <h3 className="text-lg md:text-xl font-bold flex items-center gap-2"><RecIcon className="size-5" /> {detail.order.code}</h3>
-                <button onClick={() => setDetail(null)} className="size-9 rounded-lg hover:bg-white/10 flex items-center justify-center"><X className="size-5" /></button>
+                <button onClick={() => setDetail(null)} className="size-9 rounded-lg hover:bg-slate-200 flex items-center justify-center"><X className="size-5" /></button>
               </div>
 
               <div className="flex-1 overflow-y-auto p-5 overscroll-contain">
@@ -120,7 +118,7 @@ export default function OrdersClient() {
                   <div>Khách: <b>{detail.order.customer_name || 'Khách lẻ'}</b></div>
                   <div>Thanh toán: <span className="badge">{detail.order.payment_method}</span></div>
                 </div>
-                <div className="border-t border-white/10 pt-3 space-y-2">
+                <div className="border-t border-slate-200 pt-3 space-y-2">
                   {detail.items.map((i) => (
                     <div key={i.id} className="flex items-start justify-between text-sm">
                       <div className="flex-1">
@@ -131,18 +129,18 @@ export default function OrdersClient() {
                     </div>
                   ))}
                 </div>
-                <div className="border-t border-white/10 pt-3 mt-3 space-y-1 text-sm">
+                <div className="border-t border-slate-200 pt-3 mt-3 space-y-1 text-sm">
                   <div className="flex justify-between"><span>Tạm tính</span><span>{formatCurrency(detail.order.subtotal)}</span></div>
                   <div className="flex justify-between"><span>Giảm giá</span><span>-{formatCurrency(detail.order.discount)}</span></div>
-                  <div className="flex justify-between text-base font-bold pt-1 border-t border-white/10">
-                    <span>Tổng</span><span className="text-gradient">{formatCurrency(detail.order.total)}</span>
+                  <div className="flex justify-between text-base font-bold pt-1 border-t border-slate-200">
+                    <span>Tổng</span><span className="text-indigo-700 font-bold">{formatCurrency(detail.order.total)}</span>
                   </div>
                   <div className="flex justify-between"><span>Khách trả</span><span>{formatCurrency(detail.order.paid)}</span></div>
-                  <div className="flex justify-between text-emerald-400"><span>Tiền thừa</span><span>{formatCurrency(Math.max(0, Number(detail.order.paid) - Number(detail.order.total)))}</span></div>
+                  <div className="flex justify-between text-emerald-600"><span>Tiền thừa</span><span>{formatCurrency(Math.max(0, Number(detail.order.paid) - Number(detail.order.total)))}</span></div>
                 </div>
               </div>
 
-              <div className="shrink-0 px-5 py-3 border-t border-white/10 bg-black/20 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+              <div className="shrink-0 px-5 py-3 border-t border-slate-200 bg-slate-100 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
                 <button onClick={() => window.print()} className="btn-primary w-full">In hóa đơn</button>
               </div>
             </motion.div>

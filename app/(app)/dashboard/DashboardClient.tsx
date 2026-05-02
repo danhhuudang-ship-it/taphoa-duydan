@@ -112,8 +112,8 @@ export default function DashboardClient() {
         <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} className="glow-card p-5 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-semibold flex items-center gap-2"><TrendingUp className="size-4 text-indigo-400" /> Doanh thu 7 ngày</h3>
-              <div className="text-xs text-slate-400">Tổng tuần: <b className="text-white">{formatCurrency(totalWeek)}</b></div>
+              <h3 className="font-semibold flex items-center gap-2"><TrendingUp className="size-4 text-indigo-600" /> Doanh thu 7 ngày</h3>
+              <div className="text-xs text-slate-400">Tổng tuần: <b className="text-slate-900">{formatCurrency(totalWeek)}</b></div>
             </div>
             <div className="badge">Live</div>
           </div>
@@ -140,8 +140,8 @@ export default function DashboardClient() {
         </motion.div>
 
         <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay:.05 }} className="glow-card p-5">
-          <h3 className="font-semibold mb-3 flex items-center gap-2"><AlertTriangle className="size-4 text-amber-400" /> Cảnh báo tồn kho thấp</h3>
-          <div className="text-3xl font-bold text-gradient">{stats.lowStockCount}</div>
+          <h3 className="font-semibold mb-3 flex items-center gap-2"><AlertTriangle className="size-4 text-amber-600" /> Cảnh báo tồn kho thấp</h3>
+          <div className="text-3xl font-bold text-indigo-700 font-bold">{stats.lowStockCount}</div>
           <div className="text-xs text-slate-400 mb-4">sản phẩm tồn kho dưới 10</div>
 
           <div className="h-[180px]">
