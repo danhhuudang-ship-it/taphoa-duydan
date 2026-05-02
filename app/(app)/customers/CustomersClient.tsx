@@ -105,15 +105,17 @@ export default function CustomersClient() {
         {editing && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setEditing(null)}
-            className="fixed inset-0 z-50 grid place-items-center bg-black/60 backdrop-blur-sm p-4">
+            className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-0 md:p-4">
             <motion.div onClick={(e) => e.stopPropagation()}
-              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              className="glass-strong rounded-3xl p-6 w-full max-w-md">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold">{editing.id ? 'Sửa khách hàng' : 'Thêm khách hàng'}</h3>
-                <button onClick={() => setEditing(null)}><X /></button>
+              initial={{ y: '100%', opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="glass-strong rounded-t-3xl md:rounded-3xl w-full max-w-md max-h-[92vh] md:max-h-[88vh] flex flex-col overflow-hidden">
+              <div className="shrink-0 px-5 py-4 border-b border-white/10 flex items-center justify-between bg-black/20 relative">
+                <div className="md:hidden mx-auto absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-white/20" />
+                <h3 className="text-lg md:text-xl font-bold">{editing.id ? 'Sửa khách hàng' : 'Thêm khách hàng'}</h3>
+                <button onClick={() => setEditing(null)} className="size-9 rounded-lg hover:bg-white/10 flex items-center justify-center"><X className="size-5" /></button>
               </div>
-              <div className="space-y-3">
+              <div className="flex-1 overflow-y-auto p-5 space-y-3 overscroll-contain">
                 <div><label className="text-xs">Tên *</label><input className="input mt-1" value={editing.name || ''} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></div>
                 <div className="grid grid-cols-2 gap-2">
                   <div><label className="text-xs">SĐT</label><input className="input mt-1" value={editing.phone || ''} onChange={(e) => setEditing({ ...editing, phone: e.target.value })} /></div>
@@ -122,7 +124,7 @@ export default function CustomersClient() {
                 <div><label className="text-xs">Địa chỉ</label><input className="input mt-1" value={editing.address || ''} onChange={(e) => setEditing({ ...editing, address: e.target.value })} /></div>
                 <div><label className="text-xs">Ghi chú</label><textarea className="input mt-1" rows={2} value={editing.notes || ''} onChange={(e) => setEditing({ ...editing, notes: e.target.value })} /></div>
               </div>
-              <div className="flex justify-end gap-2 mt-5">
+              <div className="shrink-0 px-5 py-3 border-t border-white/10 bg-black/20 flex justify-end gap-2 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
                 <button onClick={() => setEditing(null)} className="btn-ghost">Hủy</button>
                 <motion.button whileTap={{ scale: 0.97 }} onClick={save} className="btn-primary"><Save className="size-4" /> Lưu</motion.button>
               </div>

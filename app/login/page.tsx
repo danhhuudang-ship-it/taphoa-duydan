@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { Loader2, Lock, Mail, Sparkles, ShoppingBag } from 'lucide-react';
+import { Loader2, Lock, Mail, Store, ShoppingBag } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { createClient } from '@/lib/supabase/client';
 
@@ -53,7 +53,7 @@ export default function LoginPage() {
               transition={{ repeat: Infinity, duration: 5 }}
               className="size-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-pink-500 shadow-glow"
             >
-              <Sparkles className="size-6" />
+              <Store className="size-6" />
             </motion.div>
             <div>
               <div className="text-xl font-bold text-gradient">Bán hàng thông minh</div>

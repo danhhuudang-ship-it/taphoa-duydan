@@ -58,7 +58,7 @@ export default function POSClient() {
     });
   }, [products, activeCat, search]);
 
-  const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+  const subtotal = cart.reduce((s, i) => s + (i.price - (i.discount || 0)) * i.quantity, 0);
   const total = Math.max(0, subtotal - Number(discount || 0));
   const change = Math.max(0, Number(paid || 0) - total);
 
@@ -76,12 +76,16 @@ export default function POSClient() {
       return [...cur, {
         product_id: p.id, product_name: p.name, product_sku: p.sku,
         price: Number(p.price), quantity: 1, stock: p.stock, image_url: p.image_url,
+        discount: 0,
       }];
     });
   };
 
   const updateQty = (pid: string, q: number) =>
     setCart((cur) => cur.map((i) => i.product_id === pid ? { ...i, quantity: Math.max(1, Math.min(q, i.stock)) } : i));
+
+  const updateDiscount = (pid: string, d: number) =>
+    setCart((cur) => cur.map((i) => i.product_id === pid ? { ...i, discount: Math.max(0, Math.min(Number(d) || 0, i.price)) } : i));
 
   const removeItem = (pid: string) => setCart((cur) => cur.filter((i) => i.product_id !== pid));
 
@@ -103,6 +107,7 @@ export default function POSClient() {
         product_sku:  i.product_sku,
         price:        i.price,
         quantity:     i.quantity,
+        discount:     i.discount || 0,
       })),
       p_discount: Number(discount || 0),
       p_tax: 0,
@@ -131,7 +136,8 @@ export default function POSClient() {
             customer: customer?.name || 'Khách lẻ',
             items: cart.map((i) => ({
               name: i.product_name, qty: i.quantity,
-              price: i.price, total: i.price * i.quantity,
+              price: i.price - (i.discount || 0),
+              total: (i.price - (i.discount || 0)) * i.quantity,
             })),
             subtotal,
             discount: Number(discount || 0),
@@ -259,28 +265,53 @@ export default function POSClient() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20, scale: 0.95 }}
-                className="glass p-3 flex items-center gap-3"
+                className="glass p-3 flex flex-col gap-2"
               >
-                <div className="size-12 rounded-lg bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 flex items-center justify-center text-lg shrink-0">
-                  {it.image_url ? <img src={it.image_url} alt="" className="size-full object-cover rounded-lg" /> : '🛒'}
+                <div className="flex items-center gap-3">
+                  <div className="size-12 rounded-lg bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 flex items-center justify-center text-lg shrink-0 overflow-hidden">
+                    {it.image_url ? <img src={it.image_url} alt="" className="size-full object-cover" /> : '🛒'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold truncate">{it.product_name}</div>
+                    <div className="text-xs text-slate-400 flex items-center gap-1">
+                      {(it.discount || 0) > 0 ? (
+                        <>
+                          <span className="line-through opacity-60">{formatCurrency(it.price)}</span>
+                          <span className="text-emerald-300 font-semibold">{formatCurrency(it.price - (it.discount || 0))}</span>
+                        </>
+                      ) : (
+                        <span>{formatCurrency(it.price)}</span>
+                      )}
+                    </div>
+                  </div>
+                  <button onClick={() => removeItem(it.product_id)} className="text-rose-300 hover:text-rose-200">
+                    <X className="size-4" />
+                  </button>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold truncate">{it.product_name}</div>
-                  <div className="text-xs text-slate-400">{formatCurrency(it.price)}</div>
+                <div className="flex items-center gap-2 pl-[60px]">
+                  <div className="flex items-center gap-1">
+                    <motion.button whileTap={{ scale: 0.9 }} onClick={() => updateQty(it.product_id, it.quantity - 1)} className="size-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center"><Minus className="size-3.5" /></motion.button>
+                    <input
+                      type="number"
+                      value={it.quantity}
+                      onChange={(e) => updateQty(it.product_id, Number(e.target.value))}
+                      className="w-10 text-center text-sm bg-transparent outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                    <motion.button whileTap={{ scale: 0.9 }} onClick={() => updateQty(it.product_id, it.quantity + 1)} className="size-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center"><Plus className="size-3.5" /></motion.button>
+                  </div>
+                  <div className="flex items-center gap-1 ml-auto">
+                    <Tag className="size-3 text-amber-300" />
+                    <input
+                      type="number"
+                      placeholder="Giảm/sp"
+                      value={it.discount || ''}
+                      onChange={(e) => updateDiscount(it.product_id, Number(e.target.value))}
+                      title="Giảm trên 1 đơn vị (cho giá sỉ)"
+                      className="w-20 text-right text-xs px-2 py-1 rounded-md bg-white/5 border border-white/10 outline-none focus:border-amber-400/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                  </div>
+                  <div className="font-semibold text-sm w-20 text-right shrink-0">{formatCurrency((it.price - (it.discount || 0)) * it.quantity)}</div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <motion.button whileTap={{ scale: 0.9 }} onClick={() => updateQty(it.product_id, it.quantity - 1)} className="size-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center"><Minus className="size-3.5" /></motion.button>
-                  <input
-                    type="number"
-                    value={it.quantity}
-                    onChange={(e) => updateQty(it.product_id, Number(e.target.value))}
-                    className="w-10 text-center text-sm bg-transparent outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
-                  />
-                  <motion.button whileTap={{ scale: 0.9 }} onClick={() => updateQty(it.product_id, it.quantity + 1)} className="size-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center"><Plus className="size-3.5" /></motion.button>
-                </div>
-                <button onClick={() => removeItem(it.product_id)} className="text-rose-300 hover:text-rose-200">
-                  <X className="size-4" />
-                </button>
               </motion.div>
             ))}
           </AnimatePresence>
@@ -376,21 +407,45 @@ export default function POSClient() {
                       layout
                       key={it.product_id}
                       initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
-                      className="glass p-3 flex items-center gap-3"
+                      className="glass p-3 flex flex-col gap-2"
                     >
-                      <div className="size-12 rounded-lg bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 flex items-center justify-center text-lg shrink-0 overflow-hidden">
-                        {it.image_url ? <img src={it.image_url} alt="" className="size-full object-cover" /> : '🛒'}
+                      <div className="flex items-center gap-3">
+                        <div className="size-12 rounded-lg bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 flex items-center justify-center text-lg shrink-0 overflow-hidden">
+                          {it.image_url ? <img src={it.image_url} alt="" className="size-full object-cover" /> : '🛒'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-semibold truncate">{it.product_name}</div>
+                          <div className="text-xs text-slate-400 flex items-center gap-1">
+                            {(it.discount || 0) > 0 ? (
+                              <>
+                                <span className="line-through opacity-60">{formatCurrency(it.price)}</span>
+                                <span className="text-emerald-300 font-semibold">{formatCurrency(it.price - (it.discount || 0))}</span>
+                              </>
+                            ) : (
+                              <span>{formatCurrency(it.price)}</span>
+                            )}
+                          </div>
+                        </div>
+                        <button onClick={() => removeItem(it.product_id)} className="text-rose-300"><X className="size-4" /></button>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold truncate">{it.product_name}</div>
-                        <div className="text-xs text-slate-400">{formatCurrency(it.price)}</div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => updateQty(it.product_id, it.quantity - 1)} className="size-8 rounded-lg bg-white/10 active:bg-white/20 flex items-center justify-center"><Minus className="size-3.5" /></button>
+                          <span className="w-7 text-center text-sm font-semibold">{it.quantity}</span>
+                          <button onClick={() => updateQty(it.product_id, it.quantity + 1)} className="size-8 rounded-lg bg-white/10 active:bg-white/20 flex items-center justify-center"><Plus className="size-3.5" /></button>
+                        </div>
+                        <div className="flex items-center gap-1 ml-auto">
+                          <Tag className="size-3 text-amber-300" />
+                          <input
+                            type="number"
+                            placeholder="Giảm/sp"
+                            value={it.discount || ''}
+                            onChange={(e) => updateDiscount(it.product_id, Number(e.target.value))}
+                            className="w-20 text-right text-xs px-2 py-1 rounded-md bg-white/5 border border-white/10 outline-none focus:border-amber-400/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+                          />
+                        </div>
+                        <div className="font-semibold text-sm w-20 text-right">{formatCurrency((it.price - (it.discount || 0)) * it.quantity)}</div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => updateQty(it.product_id, it.quantity - 1)} className="size-8 rounded-lg bg-white/10 active:bg-white/20 flex items-center justify-center"><Minus className="size-3.5" /></button>
-                        <span className="w-7 text-center text-sm font-semibold">{it.quantity}</span>
-                        <button onClick={() => updateQty(it.product_id, it.quantity + 1)} className="size-8 rounded-lg bg-white/10 active:bg-white/20 flex items-center justify-center"><Plus className="size-3.5" /></button>
-                      </div>
-                      <button onClick={() => removeItem(it.product_id)} className="text-rose-300"><X className="size-4" /></button>
                     </motion.div>
                   ))}
                 </AnimatePresence>

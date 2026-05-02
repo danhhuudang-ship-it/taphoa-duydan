@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Search, Sparkles } from 'lucide-react';
+import { Search, Store } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
 import { createClient } from '@/lib/supabase/client';
 
 export default function Topbar({ title }: { title: string }) {
@@ -20,7 +21,7 @@ export default function Topbar({ title }: { title: string }) {
       {/* Mobile: small logo + shop name */}
       <div className="md:hidden flex items-center gap-2 min-w-0">
         <div className="size-8 rounded-xl flex items-center justify-center bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-pink-500 shadow-glow shrink-0">
-          <Sparkles className="size-4" />
+          <Store className="size-4" />
         </div>
         <div className="min-w-0">
           <div className="text-[11px] text-slate-400 leading-none truncate">{shopName || '—'}</div>
@@ -43,14 +44,9 @@ export default function Topbar({ title }: { title: string }) {
         <kbd className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 border border-white/10">⌘K</kbd>
       </div>
 
-      <motion.button
-        whileHover={{ scale: 1.05, rotate: -8 }}
-        whileTap={{ scale: 0.95 }}
-        className="ml-auto md:ml-0 relative p-2 rounded-xl glass hover:border-white/20"
-      >
-        <Bell className="size-5" />
-        <span className="absolute top-1 right-1 size-2 rounded-full bg-pink-500 shadow-glow animate-pulse" />
-      </motion.button>
+      <div className="ml-auto md:ml-0">
+        <NotificationBell />
+      </div>
     </header>
   );
 }

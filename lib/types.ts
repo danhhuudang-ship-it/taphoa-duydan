@@ -70,6 +70,7 @@ export type CartItem = {
   quantity: number;
   stock: number;
   image_url?: string | null;
+  discount?: number; // giảm giá trên 1 đơn vị (hỗ trợ bán sỉ)
 };
 
 export type Settings = {

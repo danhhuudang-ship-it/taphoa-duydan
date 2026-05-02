@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  LayoutDashboard, ShoppingCart, Package, Users, Receipt, BarChart3, LogOut, Sparkles, Settings as SettingsIcon,
+  LayoutDashboard, ShoppingCart, Package, Users, Receipt, BarChart3, LogOut, Store, Settings as SettingsIcon,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
@@ -46,7 +46,7 @@ export default function Sidebar() {
           whileHover={{ rotate: 12, scale: 1.08 }}
           className="size-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-pink-500 shadow-glow"
         >
-          <Sparkles className="size-5" />
+          <Store className="size-5" />
         </motion.div>
         <div className="min-w-0">
           <div className="font-bold text-gradient truncate">{shopName}</div>
