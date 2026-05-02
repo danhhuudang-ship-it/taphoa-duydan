@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
-  LayoutDashboard, ShoppingCart, Package, Users, Receipt, BarChart3, LogOut, Store, Settings as SettingsIcon,
+  LayoutDashboard, ShoppingCart, Package, Users, Receipt, BarChart3, LogOut, Sparkles, Settings as SettingsIcon,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
@@ -40,13 +40,17 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden md:flex w-64 shrink-0 flex-col gap-1 p-4 sticky top-0 h-screen bg-white border-r border-slate-200">
-      <Link href="/dashboard" className="flex items-center gap-2.5 px-2 py-3 mb-3">
-        <div className="size-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600 shadow-md">
-          <Store className="size-5 text-white" />
+      <Link href="/dashboard" className="flex items-center gap-3 px-2 py-3 mb-3 group">
+        <div className="relative shrink-0">
+          {/* Glow halo behind icon */}
+          <div className="absolute inset-0 rounded-2xl blur-md opacity-70 bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-pink-500 animate-glow-pulse" />
+          <div className="relative size-11 rounded-2xl flex items-center justify-center bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-pink-500 shadow-md">
+            <Sparkles className="size-[22px] text-white animate-wobble" />
+          </div>
         </div>
         <div className="min-w-0">
-          <div className="font-bold text-slate-900 truncate text-[15px]">{shopName}</div>
-          <div className="text-[11px] text-slate-500">cùng Danh Hữu Đang</div>
+          <div className="font-extrabold text-slate-900 text-[15px] leading-tight tracking-tight truncate shimmer-text">{shopName}</div>
+          <div className="text-[11px] text-slate-500 font-medium">cùng Danh Hữu Đang</div>
         </div>
       </Link>
 

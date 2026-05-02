@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Lock, Mail, Store, ShoppingBag } from 'lucide-react';
+import { Loader2, Lock, Mail, Sparkles, ShoppingBag } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { createClient } from '@/lib/supabase/client';
 
@@ -41,12 +41,15 @@ export default function LoginPage() {
       <div className="w-full max-w-5xl grid md:grid-cols-2 gap-0 bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-200 motion-fade-up">
         <div className="relative p-10 hidden md:flex flex-col justify-between bg-gradient-to-br from-indigo-600 to-violet-700 text-white">
           <div className="flex items-center gap-3">
-            <div className="size-12 rounded-2xl flex items-center justify-center bg-white/20 backdrop-blur">
-              <Store className="size-6" />
+            <div className="relative">
+              <div className="absolute inset-0 rounded-2xl blur-md opacity-50 bg-white" />
+              <div className="relative size-12 rounded-2xl flex items-center justify-center bg-white/20 backdrop-blur">
+                <Sparkles className="size-6 animate-wobble" />
+              </div>
             </div>
             <div>
-              <div className="text-xl font-bold">Bán hàng thông minh</div>
-              <div className="text-sm text-white/80">cùng Danh Hữu Đang</div>
+              <div className="text-xl font-extrabold tracking-tight">Bán hàng thông minh</div>
+              <div className="text-sm text-white/85 font-medium">cùng Danh Hữu Đang</div>
             </div>
           </div>
 

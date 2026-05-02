@@ -9,20 +9,26 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#f6f7fb',
   width: 'device-width',
   initialScale: 1,
 };
 
+const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi">
+      <head>
+        {/* Set theme before paint — tránh flash sai theme */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body>
         <BackgroundFX />
         {children}
         <Toaster
           position="top-right"
           toastOptions={{
+            className: 'dark:bg-slate-900 dark:text-slate-100',
             style: {
               background: '#ffffff',
               color: '#111827',
