@@ -5,7 +5,7 @@ import { Plus, Pencil, Trash2, Search, X, Save, Phone, Mail, MapPin } from 'luci
 import toast from 'react-hot-toast';
 import { createClient } from '@/lib/supabase/client';
 import type { Customer } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 export default function CustomersClient() {
   const [items, setItems] = useState<Customer[]>([]);
@@ -82,13 +82,18 @@ export default function CustomersClient() {
                 </div>
               </div>
               <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                <div className="glass px-3 py-2">
-                  <div className="text-slate-400">Tổng chi tiêu</div>
-                  <div className="font-bold text-indigo-700 font-bold">{formatCurrency(c.total_spent || 0)}</div>
+                <div className="rounded-lg bg-slate-50 border border-slate-200 px-3 py-2">
+                  <div className="text-slate-500">Tổng chi tiêu</div>
+                  <div className="font-bold text-indigo-700">{formatCurrency(c.total_spent || 0)}</div>
                 </div>
-                <div className="glass px-3 py-2">
-                  <div className="text-slate-400">Điểm tích lũy</div>
-                  <div className="font-bold">{c.points || 0}</div>
+                <div className={cn(
+                  "rounded-lg px-3 py-2 border",
+                  (c.debt || 0) > 0 ? "bg-amber-50 border-amber-200" : "bg-slate-50 border-slate-200"
+                )}>
+                  <div className="text-slate-500">Đang nợ</div>
+                  <div className={cn("font-bold", (c.debt || 0) > 0 ? "text-amber-700" : "text-slate-400")}>
+                    {formatCurrency(c.debt || 0)}
+                  </div>
                 </div>
               </div>
               <div className="mt-3 flex justify-end gap-2">

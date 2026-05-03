@@ -31,6 +31,7 @@ export type Customer = {
   address?: string | null;
   total_spent?: number;
   points?: number;
+  debt?: number;
   notes?: string | null;
   created_at?: string;
 };

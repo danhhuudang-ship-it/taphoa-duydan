@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
-  LayoutDashboard, ShoppingCart, Package, Users, Receipt, BarChart3, LogOut, Sparkles, Settings as SettingsIcon,
+  LayoutDashboard, ShoppingCart, Package, Users, Receipt, BarChart3, LogOut, Sparkles, Settings as SettingsIcon, Wallet,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,7 @@ const links = [
   { href: '/products',  label: 'Sản phẩm & Kho',  icon: Package },
   { href: '/customers', label: 'Khách hàng',      icon: Users },
   { href: '/orders',    label: 'Đơn hàng',        icon: Receipt },
+  { href: '/debts',     label: 'Công nợ',         icon: Wallet },
   { href: '/reports',   label: 'Báo cáo',         icon: BarChart3 },
   { href: '/settings',  label: 'Cài đặt',         icon: SettingsIcon },
 ];

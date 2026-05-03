@@ -2,16 +2,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, ShoppingCart, Package, Receipt, Settings as SettingsIcon,
+  LayoutDashboard, ShoppingCart, Package, Receipt, Wallet,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const items = [
-  { href: '/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
-  { href: '/pos',       label: 'Bán hàng',  icon: ShoppingCart },
+  { href: '/pos',       label: 'Bán hàng', icon: ShoppingCart },
   { href: '/products',  label: 'Sản phẩm', icon: Package },
-  { href: '/orders',    label: 'Đơn',       icon: Receipt },
-  { href: '/settings',  label: 'Cài đặt',  icon: SettingsIcon },
+  { href: '/orders',    label: 'Đơn',      icon: Receipt },
+  { href: '/debts',     label: 'Công nợ',  icon: Wallet },
+  { href: '/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
 ];
 
 export default function BottomNav() {

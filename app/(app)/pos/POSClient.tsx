@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   Search, Plus, Minus, Trash2, ScanBarcode, X, CreditCard, Banknote, QrCode,
   ShoppingCart as CartIcon, Receipt, Tag, UserPlus, CheckCircle2, Printer,
+  Wallet, AlertCircle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { createClient } from '@/lib/supabase/client';
@@ -30,6 +31,10 @@ export default function POSClient() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [autoPrint, setAutoPrint] = useState<boolean>(true);
   const [settings, setSettings] = useState<any>(null);
+  const [payMode, setPayMode] = useState<'paid' | 'debt'>('paid'); // trả đủ vs ghi nợ
+  const [newCustomerName, setNewCustomerName] = useState('');
+  const [newCustomerPhone, setNewCustomerPhone] = useState('');
+  const [creatingCustomer, setCreatingCustomer] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -105,11 +110,30 @@ export default function POSClient() {
     if (!cart.length) return;
     setSubmitting(true);
     const supabase = createClient();
+
+    // Nếu ghi nợ mà chưa có khách → thử tạo nhanh từ tên đã điền
+    let activeCustomerId = customerId;
+    if (payMode === 'debt') {
+      if (!activeCustomerId) {
+        if (newCustomerName.trim()) {
+          const newId = await createInlineCustomer();
+          if (!newId) { setSubmitting(false); return; }
+          activeCustomerId = newId;
+        } else {
+          toast.error('Ghi nợ phải có khách hàng — chọn hoặc tạo nhanh phía trên');
+          setSubmitting(false); return;
+        }
+      }
+    }
+
     const code = genOrderCode();
-    const customer = customers.find((c) => c.id === customerId);
+    const customer = customers.find((c) => c.id === activeCustomerId) ||
+                     (activeCustomerId !== customerId
+                       ? customers.find((c) => c.id === activeCustomerId)
+                       : undefined);
     const payload = {
       p_code: code,
-      p_customer_id: customerId || null,
+      p_customer_id: activeCustomerId || null,
       p_customer_name: customer?.name || 'Khách lẻ',
       p_items: cart.map((i) => ({
         product_id: i.product_id, product_name: i.product_name, product_sku: i.product_sku,
@@ -129,7 +153,7 @@ export default function POSClient() {
     const snapshot: Order = {
       id: '',
       code,
-      customer_id: customerId || null,
+      customer_id: activeCustomerId || null,
       customer_name: customer?.name || 'Khách lẻ',
       subtotal,
       discount: Number(discount || 0),
@@ -188,6 +212,24 @@ export default function POSClient() {
       const { data } = await supabase.from('products').select('*, categories(*)').eq('active', true).order('name');
       setProducts((data as any) || []);
     })();
+  };
+
+  const createInlineCustomer = async (): Promise<string | null> => {
+    const name = newCustomerName.trim();
+    if (!name) { toast.error('Vui lòng nhập tên khách'); return null; }
+    setCreatingCustomer(true);
+    const supabase = createClient();
+    const { data, error } = await supabase.from('customers').insert({
+      name, phone: newCustomerPhone.trim() || null,
+    }).select().single();
+    setCreatingCustomer(false);
+    if (error) { toast.error(error.message); return null; }
+    setCustomers((prev) => [...prev, data as Customer]);
+    setCustomerId(data.id);
+    setNewCustomerName('');
+    setNewCustomerPhone('');
+    toast.success('Đã thêm khách: ' + name);
+    return data.id;
   };
 
   const startNewOrder = () => {
@@ -515,25 +557,113 @@ export default function POSClient() {
                 <span className="text-slate-600">Tổng tiền</span>
                 <span className="font-bold text-indigo-700 text-xl">{formatCurrency(total)}</span>
               </div>
-              <div>
-                <label className="text-sm font-medium text-slate-700">Khách đưa</label>
-                <input
-                  type="number" autoFocus value={paid}
-                  onChange={(e) => setPaid(Number(e.target.value))}
-                  className="input mt-1 text-right text-lg font-bold"
-                />
+
+              {/* MODE TOGGLE: Trả đủ / Ghi nợ */}
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setPayMode('paid'); setPaid(total); }}
+                  className={cn(
+                    'rounded-xl p-2.5 text-sm font-semibold border-2 transition',
+                    payMode === 'paid'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-500'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                  )}
+                >
+                  ✅ Khách trả đủ
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setPayMode('debt'); setPaid(0); }}
+                  className={cn(
+                    'rounded-xl p-2.5 text-sm font-semibold border-2 transition',
+                    payMode === 'debt'
+                      ? 'bg-amber-50 text-amber-700 border-amber-500'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                  )}
+                >
+                  📒 Ghi nợ
+                </button>
               </div>
-              <div className="grid grid-cols-4 gap-2">
-                {[total, 100000, 200000, 500000].map((v, i) => (
-                  <button key={i} onClick={() => setPaid(v)} className="btn-ghost !py-2 text-xs justify-center">
-                    {formatCurrency(v)}
-                  </button>
-                ))}
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-slate-200">
-                <span className="text-sm text-slate-600">Tiền thừa</span>
-                <span className="font-bold text-emerald-600 text-lg">{formatCurrency(change)}</span>
-              </div>
+
+              {payMode === 'paid' ? (
+                <>
+                  <div>
+                    <label className="text-sm font-medium text-slate-700">Khách đưa</label>
+                    <input
+                      type="number" autoFocus value={paid}
+                      onChange={(e) => setPaid(Number(e.target.value))}
+                      className="input mt-1 text-right text-lg font-bold"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[total, 100000, 200000, 500000].map((v, i) => (
+                      <button key={i} onClick={() => setPaid(v)} className="btn-ghost !py-2 text-xs justify-center">
+                        {formatCurrency(v)}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+                    <span className="text-sm text-slate-600">Tiền thừa</span>
+                    <span className="font-bold text-emerald-600 text-lg">{formatCurrency(change)}</span>
+                  </div>
+                </>
+              ) : (
+                <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 space-y-3">
+                  <div className="flex items-start gap-2 text-amber-800 text-sm">
+                    <AlertCircle className="size-4 shrink-0 mt-0.5" />
+                    <span>Đơn này sẽ ghi nợ vào tài khoản khách hàng. Cần chọn khách hoặc tạo mới.</span>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Chọn khách có sẵn</label>
+                    <select
+                      value={customerId}
+                      onChange={(e) => setCustomerId(e.target.value)}
+                      className="input mt-1"
+                    >
+                      <option value="">— Chưa chọn —</option>
+                      {customers.filter(c => c.name !== 'Khách lẻ').map((c) => (
+                        <option key={c.id} value={c.id}>{c.name} {c.phone ? `· ${c.phone}` : ''}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="text-center text-xs text-slate-500 -my-1">— hoặc tạo nhanh —</div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      placeholder="Tên khách *"
+                      value={newCustomerName}
+                      onChange={(e) => { setNewCustomerName(e.target.value); if (e.target.value) setCustomerId(''); }}
+                      className="input"
+                    />
+                    <input
+                      type="tel"
+                      placeholder="SĐT (tùy chọn)"
+                      value={newCustomerPhone}
+                      onChange={(e) => setNewCustomerPhone(e.target.value)}
+                      className="input"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700">Trả trước (nếu có)</label>
+                    <input
+                      type="number" value={paid}
+                      onChange={(e) => setPaid(Number(e.target.value))}
+                      placeholder="0"
+                      className="input mt-1 text-right font-bold"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-amber-300">
+                    <span className="text-sm font-semibold text-amber-800">Số tiền ghi nợ</span>
+                    <span className="font-extrabold text-amber-700 text-xl">{formatCurrency(Math.max(0, total - Number(paid || 0)))}</span>
+                  </div>
+                </div>
+              )}
 
               <label className="flex items-center gap-2 mt-3 cursor-pointer select-none">
                 <input
