@@ -9,24 +9,34 @@ import { cn } from '@/lib/utils';
 type Tab = 'upload' | 'url';
 
 /**
- * Convert Google Drive sharing link → direct image URL.
- * Hỗ trợ các format:
+ * Convert Google Drive sharing link → direct image URL (qua lh3.googleusercontent.com).
+ * Format này render được trực tiếp trong <img>, không bị CORS/redirect như drive.google.com/uc.
+ *
+ * Hỗ trợ các URL Drive sau:
  *   https://drive.google.com/file/d/<ID>/view?usp=sharing
  *   https://drive.google.com/open?id=<ID>
  *   https://drive.google.com/uc?id=<ID>
+ *   https://docs.google.com/uc?id=<ID>
+ *   https://lh3.googleusercontent.com/d/<ID>=...
  */
+function extractDriveId(url: string): string | null {
+  // /file/d/<ID>/...
+  let m = url.match(/(?:drive|docs)\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  // ?id=<ID>
+  m = url.match(/(?:drive|docs)\.google\.com\/(?:open|uc)[^?]*\?(?:[^&]*&)*id=([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  // already lh3 format: /d/<ID>
+  m = url.match(/lh3\.googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  return null;
+}
+
 function normalizeImageUrl(input: string): string {
   const url = input.trim();
   if (!url) return '';
-
-  // Drive: /file/d/<ID>/...
-  let m = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
-  if (m) return `https://drive.google.com/uc?export=view&id=${m[1]}`;
-
-  // Drive: ?id=<ID>
-  m = url.match(/drive\.google\.com\/(?:open|uc).*?[?&]id=([^&]+)/);
-  if (m) return `https://drive.google.com/uc?export=view&id=${m[1]}`;
-
+  const id = extractDriveId(url);
+  if (id) return `https://lh3.googleusercontent.com/d/${id}=w1024`;
   return url;
 }
 

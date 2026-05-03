@@ -1,31 +1,44 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Lock, Mail, Sparkles, ShoppingBag } from 'lucide-react';
+import { Loader2, Lock, User, Sparkles, ShoppingBag } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { createClient } from '@/lib/supabase/client';
+
+const FAKE_EMAIL_DOMAIN = '@taphoa-duydan.local';
+
+/** Cho phép đăng nhập bằng tên ngắn (vd: "admin") hoặc email đầy đủ */
+function toEmail(u: string): string {
+  const v = u.trim();
+  if (v.includes('@')) return v.toLowerCase();
+  return `${v.toLowerCase()}${FAKE_EMAIL_DOMAIN}`;
+}
 
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handle = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return toast.error('Vui lòng nhập đầy đủ');
+    if (!username || !password) return toast.error('Vui lòng nhập đầy đủ');
     setLoading(true);
     const supabase = createClient();
+    const email = toEmail(username);
     try {
       if (mode === 'login') {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success('Đăng nhập thành công ✨');
       } else {
+        if (password.length < 5) {
+          throw new Error('Mật khẩu phải có ít nhất 5 ký tự');
+        }
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        toast.success('Tạo tài khoản OK');
+        toast.success('Tạo tài khoản thành công');
       }
       router.push('/dashboard');
       router.refresh();
@@ -40,15 +53,15 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-indigo-50 via-white to-violet-50">
       <div className="w-full max-w-5xl grid md:grid-cols-2 gap-0 bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-200 motion-fade-up">
         <div className="relative p-10 hidden md:flex flex-col justify-between bg-gradient-to-br from-indigo-600 to-violet-700 text-white">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="absolute inset-0 rounded-2xl blur-md opacity-50 bg-white" />
-              <div className="relative size-12 rounded-2xl flex items-center justify-center bg-white/20 backdrop-blur">
-                <Sparkles className="size-6 animate-wobble" />
+          <div className="flex items-center gap-5">
+            <div className="relative shrink-0">
+              <div className="absolute -inset-1 rounded-2xl blur-md opacity-40 bg-white" />
+              <div className="relative size-14 rounded-2xl flex items-center justify-center bg-white/25 backdrop-blur border border-white/30">
+                <Sparkles className="size-7 animate-wobble" />
               </div>
             </div>
-            <div>
-              <div className="text-xl font-extrabold tracking-tight">Bán hàng thông minh</div>
+            <div className="min-w-0">
+              <div className="text-xl font-extrabold tracking-tight leading-tight">Bán hàng thông minh</div>
               <div className="text-sm text-white/85 font-medium">cùng Danh Hữu Đang</div>
             </div>
           </div>
@@ -72,25 +85,42 @@ export default function LoginPage() {
 
         <div className="p-8 md:p-10">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold text-slate-900">{mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}</h3>
-            <button type="button" onClick={() => setMode(mode === 'login' ? 'register' : 'login')} className="text-sm text-indigo-600 hover:underline">
+            <h3 className="text-2xl font-extrabold text-slate-900">{mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}</h3>
+            <button type="button" onClick={() => setMode(mode === 'login' ? 'register' : 'login')} className="text-sm text-indigo-600 hover:underline font-medium">
               {mode === 'login' ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}
             </button>
           </div>
 
           <form onSubmit={handle} className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-slate-700">Email</label>
+              <label className="text-sm font-semibold text-slate-700">Tên đăng nhập</label>
               <div className="relative mt-1">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-                <input className="input pl-10" placeholder="ban@cuahang.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                <input
+                  className="input pl-10"
+                  placeholder="admin"
+                  type="text"
+                  autoComplete="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+              </div>
+              <div className="text-[11px] text-slate-500 mt-1">
+                Có thể dùng tên ngắn (admin) hoặc email đầy đủ (a@b.com)
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700">Mật khẩu</label>
+              <label className="text-sm font-semibold text-slate-700">Mật khẩu</label>
               <div className="relative mt-1">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-                <input className="input pl-10" placeholder="••••••••" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <input
+                  className="input pl-10"
+                  placeholder="••••••••"
+                  type="password"
+                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </div>
             </div>
 
@@ -101,8 +131,11 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 text-center text-xs text-slate-500">
-            Mẹo: Nếu Supabase project mới, hãy tắt <span className="text-slate-700 font-medium">Confirm email</span> trong{' '}
-            <span className="text-slate-700 font-medium">Auth → Providers → Email</span> để đăng nhập ngay.
+            {mode === 'register' ? (
+              <>Mẹo: Để khách hàng dễ dùng, đăng ký <b className="text-slate-700">admin / 12345</b>.</>
+            ) : (
+              <>Tài khoản demo gợi ý: <b className="text-slate-700">admin / 12345</b> (sau khi đăng ký 1 lần).</>
+            )}
           </div>
         </div>
       </div>

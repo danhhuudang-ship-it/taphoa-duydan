@@ -66,7 +66,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-[340px] max-h-[80vh] bg-white rounded-2xl border border-slate-200 shadow-xl z-50 overflow-hidden motion-fade-up">
+        <div className="notif-dropdown absolute right-0 mt-2 w-[340px] max-h-[80vh] bg-white rounded-2xl border border-slate-200 shadow-xl z-50 overflow-hidden motion-fade-up">
           <div className="p-4 border-b border-slate-100 flex items-center justify-between">
             <div>
               <div className="font-bold text-slate-900">Thông báo</div>

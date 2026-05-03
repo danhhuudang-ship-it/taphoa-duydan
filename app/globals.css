@@ -351,9 +351,9 @@ html.dark .card-hover:hover {
 }
 
 /* Override common Tailwind backgrounds */
-html.dark .bg-white         { background-color: rgba(255,255,255,0.04) !important; }
+html.dark .bg-white         { background-color: rgba(20,22,40,0.95) !important; border-color: rgba(255,255,255,0.10); }
 html.dark .bg-white\/95     { background-color: rgba(20,22,40,0.85) !important; }
-html.dark .bg-slate-50      { background-color: rgba(255,255,255,0.03) !important; }
+html.dark .bg-slate-50      { background-color: rgba(255,255,255,0.04) !important; }
 html.dark .bg-slate-100     { background-color: rgba(255,255,255,0.06) !important; }
 html.dark .bg-slate-200     { background-color: rgba(255,255,255,0.10) !important; }
 html.dark .bg-slate-100\/80,
@@ -479,10 +479,10 @@ html.dark .glow-card:hover { box-shadow: 0 24px 48px -16px rgba(168,85,247,0.4) 
 /* ====================================================================== */
 @keyframes wobble {
   0%, 100% { transform: rotate(0deg); }
-  20% { transform: rotate(8deg) scale(1.05); }
-  40% { transform: rotate(-6deg) scale(1.02); }
-  60% { transform: rotate(4deg); }
-  80% { transform: rotate(-3deg); }
+  20% { transform: rotate(7deg); }
+  40% { transform: rotate(-5deg); }
+  60% { transform: rotate(3deg); }
+  80% { transform: rotate(-2deg); }
 }
 .animate-wobble { animation: wobble 4.5s ease-in-out infinite; }
 
@@ -496,3 +496,32 @@ html.dark .glow-card:hover { box-shadow: 0 24px 48px -16px rgba(168,85,247,0.4) 
   50%      { box-shadow: 0 0 32px rgba(168, 85, 247, 0.65), 0 0 0 8px rgba(168, 85, 247, 0.08); }
 }
 .animate-glow-pulse { animation: glow-pulse 3.5s ease-in-out infinite; }
+
+
+/* Make notification/theme buttons solid in dark mode */
+html.dark header button.bg-white,
+html.dark .topbar-button {
+  background: rgba(30, 33, 60, 0.85) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  backdrop-filter: blur(10px);
+}
+html.dark header button.bg-white:hover {
+  background: rgba(40, 43, 75, 0.95) !important;
+  border-color: rgba(129,140,248,0.5) !important;
+}
+
+/* Notification dropdown panel — solid in dark mode */
+html.dark .notif-dropdown {
+  background: rgba(15, 17, 35, 0.97) !important;
+  border-color: rgba(255,255,255,0.10) !important;
+  box-shadow: 0 20px 50px -10px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+}
+
+/* Modal backgrounds in dark mode — solid */
+html.dark .glass-strong,
+html.dark .modal-panel {
+  background: rgba(15, 17, 35, 0.97) !important;
+  border-color: rgba(255,255,255,0.10) !important;
+  box-shadow: 0 20px 50px -10px rgba(0,0,0,0.6);
+}
