@@ -22,11 +22,32 @@ type Row = {
 };
 
 const TEMPLATE_HEADERS = ['SKU', 'Tên sản phẩm', 'Giá bán', 'Giá vốn', 'Tồn kho', 'Đơn vị', 'Danh mục', 'Mô tả'];
+const NAME_ONLY_TEMPLATE_HEADERS = ['Tên sản phẩm'];
 const SAMPLE_ROWS = [
   ['SP001', 'Coca-Cola lon 330ml',   12000,  9000,  50, 'lon',  'Đồ uống',         'Lon nước ngọt 330ml'],
   ['SP002', 'Mì gói Hảo Hảo',         5000,  3500, 100, 'gói',  'Đồ ăn nhanh',     ''],
   ['SP003', 'Bút bi Thiên Long',      8000,  5000,  30, 'cây',  'Văn phòng phẩm',  ''],
 ];
+const NAME_ONLY_SAMPLE_ROWS = [
+  ['Thùng 30 gói mì Hảo Hảo tôm chua cay 75g'],
+  ['Thùng 24 ly mì Modern lẩu Thái tôm 67g'],
+  ['Thùng 30 gói mì 3 Miền tôm chua cay 65g'],
+];
+
+function slugifySku(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/gi, 'd')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toUpperCase();
+}
+
+function makeAutoSku(name: string, rowIndex: number) {
+  const slug = slugifySku(name).slice(0, 36);
+  return `AUTO-${slug || `SP-${rowIndex + 1}`}`;
+}
 
 export default function BulkImport({
   open, onClose, categories, onImported,
@@ -52,6 +73,15 @@ export default function BulkImport({
     toast.success('Đã tải file mẫu');
   };
 
+  const downloadNameOnlyTemplate = () => {
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([NAME_ONLY_TEMPLATE_HEADERS, ...NAME_ONLY_SAMPLE_ROWS]);
+    ws['!cols'] = [{ wch: 40 }];
+    XLSX.utils.book_append_sheet(wb, ws, 'Ten-san-pham');
+    XLSX.writeFile(wb, 'mau-nhap-ten-san-pham.xlsx');
+    toast.success('Đã tải file mẫu tên sản phẩm');
+  };
+
   const handleFile = async (file: File) => {
     setParsing(true);
     try {
@@ -61,9 +91,9 @@ export default function BulkImport({
       const json = XLSX.utils.sheet_to_json<any>(ws, { defval: '' });
 
       const seen = new Set<string>();
-      const parsed: Row[] = json.map((r: any) => {
-        const sku = String(r['SKU'] || r['sku'] || '').trim();
+      const parsed: Row[] = json.map((r: any, index: number) => {
         const name = String(r['Tên sản phẩm'] || r['Tên'] || r['name'] || '').trim();
+        const rawSku = String(r['SKU'] || r['sku'] || '').trim();
         const price = Number(r['Giá bán'] || r['price'] || 0);
         const cost = Number(r['Giá vốn'] || r['cost'] || 0);
         const stock = Number(r['Tồn kho'] || r['stock'] || 0);
@@ -72,11 +102,26 @@ export default function BulkImport({
         const category_name = String(r['Danh mục'] || r['category'] || '').trim();
 
         let _err = '';
-        if (!sku) _err = 'Thiếu SKU';
-        else if (!name) _err = 'Thiếu tên SP';
+        if (!name) _err = 'Thiếu tên SP';
         else if (price < 0) _err = 'Giá bán âm';
-        else if (seen.has(sku)) _err = 'SKU trùng trong file';
-        seen.add(sku);
+        else if (cost < 0) _err = 'Giá vốn âm';
+        else if (stock < 0) _err = 'Tồn kho âm';
+
+        let sku = rawSku;
+        if (!_err && !sku) {
+          const baseSku = makeAutoSku(name, index);
+          sku = baseSku;
+          let counter = 2;
+          while (seen.has(sku)) {
+            sku = `${baseSku}-${counter}`;
+            counter += 1;
+          }
+        } else if (!_err && seen.has(sku)) {
+          _err = 'SKU trùng trong file';
+        }
+
+        if (!_err && !sku) _err = 'Không thể tạo SKU';
+        if (sku) seen.add(sku);
 
         return {
           sku, name, price, cost, stock, unit, description, category_name,
@@ -180,7 +225,7 @@ export default function BulkImport({
             <h3 className="text-lg md:text-xl font-bold text-slate-900 flex items-center gap-2">
               <FileSpreadsheet className="size-5 text-indigo-600" /> Nhập sản phẩm hàng loạt
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">Tải file mẫu, điền thông tin rồi tải lên — SKU trùng sẽ được cập nhật</p>
+            <p className="text-xs text-slate-500 mt-0.5">Có thể nhập đủ cột hoặc chỉ cần cột Tên sản phẩm — hệ thống sẽ tự sinh SKU và dùng giá/tồn mặc định</p>
           </div>
           <button onClick={onClose} className="size-9 rounded-lg hover:bg-slate-100 flex items-center justify-center"><X className="size-5" /></button>
         </div>
@@ -193,16 +238,20 @@ export default function BulkImport({
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-slate-900">Bước 1: Tải file mẫu</div>
-              <div className="text-xs text-slate-600">File Excel có sẵn 3 dòng ví dụ + đầy đủ cột chuẩn</div>
+              <div className="text-xs text-slate-600">Bạn có thể dùng mẫu đầy đủ hoặc mẫu tối giản chỉ có cột Tên sản phẩm</div>
             </div>
             <button onClick={downloadTemplate} className="btn-ghost shrink-0">
               <Download className="size-4" /> Tải mẫu
+            </button>
+            <button onClick={downloadNameOnlyTemplate} className="btn-ghost shrink-0">
+              <Download className="size-4" /> Mẫu tên thôi
             </button>
           </div>
 
           {/* Step 2: Upload */}
           <div>
             <div className="font-semibold text-slate-900 mb-2">Bước 2: Tải file lên (Excel hoặc CSV)</div>
+            <div className="text-xs text-slate-500 mb-2">Nếu file chỉ có cột <b>Tên sản phẩm</b>, hệ thống sẽ tự tạo SKU dạng <code className="badge">AUTO-...</code>, giá bán = 0, giá vốn = 0, tồn kho = 0, đơn vị = <code className="badge">cái</code>.</div>
             <input
               ref={fileRef}
               type="file"

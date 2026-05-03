@@ -2,13 +2,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Search, Plus, Minus, Trash2, ScanBarcode, X, CreditCard, Banknote, QrCode,
-  ShoppingCart as CartIcon, Receipt, Tag, UserPlus,
+  ShoppingCart as CartIcon, Receipt, Tag, UserPlus, CheckCircle2, Printer,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { createClient } from '@/lib/supabase/client';
-import type { Product, Category, CartItem, Customer } from '@/lib/types';
+import type { Product, Category, CartItem, Customer, Order, OrderItem } from '@/lib/types';
 import { cn, formatCurrency, genOrderCode } from '@/lib/utils';
 import { useGlow } from '@/components/HoverGlow';
+import PrintReceipt from '@/components/PrintReceipt';
 
 export default function POSClient() {
   const [products, setProducts]   = useState<Product[]>([]);
@@ -25,18 +26,30 @@ export default function POSClient() {
   const [submitting, setSubmitting] = useState(false);
   const [cartOpen, setCartOpen]     = useState(false);
   const glow = useGlow();
+  const [lastOrder, setLastOrder] = useState<{ order: Order; items: OrderItem[] } | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [autoPrint, setAutoPrint] = useState<boolean>(true);
+  const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
     (async () => {
       const supabase = createClient();
-      const [p, c, cu] = await Promise.all([
+      const [p, c, cu, st] = await Promise.all([
         supabase.from('products').select('*, categories(*)').eq('active', true).order('name'),
         supabase.from('categories').select('*').order('name'),
         supabase.from('customers').select('*').order('name'),
+        supabase.from('settings').select('shop_name, shop_address, shop_phone').eq('id', 1).maybeSingle(),
       ]);
       setProducts((p.data as any) || []);
       setCategories(c.data || []);
       setCustomers(cu.data || []);
+      setSettings(st.data || null);
+
+      // Load auto-print preference từ localStorage
+      try {
+        const v = localStorage.getItem('pos_auto_print');
+        if (v !== null) setAutoPrint(v === '1');
+      } catch {}
     })();
   }, []);
 
@@ -111,8 +124,44 @@ export default function POSClient() {
     const { error } = await supabase.rpc('create_order', payload);
     setSubmitting(false);
     if (error) { toast.error('Tạo đơn lỗi: ' + error.message); return; }
-    toast.success(`✅ Đã tạo đơn ${code}`);
+
+    // Build order snapshot cho việc in hoá đơn
+    const snapshot: Order = {
+      id: '',
+      code,
+      customer_id: customerId || null,
+      customer_name: customer?.name || 'Khách lẻ',
+      subtotal,
+      discount: Number(discount || 0),
+      tax: 0,
+      total,
+      paid: Number(paid || total),
+      payment_method: paymentMethod,
+      status: 'completed',
+      created_at: new Date().toISOString(),
+    };
+    const itemSnapshot: OrderItem[] = cart.map((i, idx) => ({
+      id: String(idx),
+      order_id: '',
+      product_id: i.product_id,
+      product_name: i.product_name,
+      product_sku: i.product_sku,
+      quantity: i.quantity,
+      price: i.price,
+      total: (i.price - (i.discount || 0)) * i.quantity,
+      ...(i.discount ? { discount: i.discount } : {}),
+    } as OrderItem));
+
+    setLastOrder({ order: snapshot, items: itemSnapshot });
+    toast.success(`Đã tạo đơn ${code}`);
     setShowPay(false);
+    setShowSuccess(true);
+
+    // Auto print nếu user bật
+    if (autoPrint) {
+      // chờ DOM render xong để PrintReceipt có data
+      setTimeout(() => { window.print(); }, 250);
+    }
 
     try {
       const { data: cfg } = await supabase.from('settings').select('telegram_enabled').eq('id', 1).maybeSingle();
@@ -134,9 +183,17 @@ export default function POSClient() {
       }
     } catch {}
 
+    // refresh stocks (background)
+    (async () => {
+      const { data } = await supabase.from('products').select('*, categories(*)').eq('active', true).order('name');
+      setProducts((data as any) || []);
+    })();
+  };
+
+  const startNewOrder = () => {
+    setShowSuccess(false);
+    setLastOrder(null);
     clearCart();
-    const { data } = await supabase.from('products').select('*, categories(*)').eq('active', true).order('name');
-    setProducts((data as any) || []);
   };
 
   return (
@@ -477,6 +534,21 @@ export default function POSClient() {
                 <span className="text-sm text-slate-600">Tiền thừa</span>
                 <span className="font-bold text-emerald-600 text-lg">{formatCurrency(change)}</span>
               </div>
+
+              <label className="flex items-center gap-2 mt-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={autoPrint}
+                  onChange={(e) => {
+                    setAutoPrint(e.target.checked);
+                    try { localStorage.setItem('pos_auto_print', e.target.checked ? '1' : '0'); } catch {}
+                  }}
+                  className="size-4 accent-indigo-600"
+                />
+                <span className="text-sm text-slate-700 flex items-center gap-1">
+                  <Printer className="size-4 text-indigo-600" /> In hoá đơn ngay sau khi thanh toán
+                </span>
+              </label>
             </div>
 
             <button disabled={submitting} onClick={submit} className="btn-primary w-full mt-5 !text-base !py-3">
@@ -484,6 +556,52 @@ export default function POSClient() {
             </button>
           </div>
         </div>
+      )}
+      {/* === SUCCESS MODAL sau khi tạo đơn === */}
+      {showSuccess && lastOrder && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/40 p-4 no-print" onClick={startNewOrder}>
+          <div className="bg-white rounded-3xl p-6 w-full max-w-md border border-slate-200 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="size-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                <CheckCircle2 className="size-7" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">Tạo đơn thành công</h3>
+                <div className="text-sm text-slate-500 font-mono">{lastOrder.order.code}</div>
+              </div>
+            </div>
+
+            <div className="space-y-1.5 text-sm border-y border-slate-200 py-3 mb-4">
+              <div className="flex justify-between"><span className="text-slate-600">Khách:</span><b>{lastOrder.order.customer_name}</b></div>
+              <div className="flex justify-between"><span className="text-slate-600">Tạm tính:</span><b>{formatCurrency(lastOrder.order.subtotal)}</b></div>
+              {Number(lastOrder.order.discount) > 0 && (
+                <div className="flex justify-between"><span className="text-slate-600">Giảm:</span><b>-{formatCurrency(lastOrder.order.discount)}</b></div>
+              )}
+              <div className="flex justify-between text-base font-bold pt-1 border-t border-slate-200">
+                <span>Tổng:</span><span className="text-indigo-700 text-lg">{formatCurrency(lastOrder.order.total)}</span>
+              </div>
+              <div className="flex justify-between"><span className="text-slate-600">Khách trả:</span><b>{formatCurrency(lastOrder.order.paid)}</b></div>
+              <div className="flex justify-between text-emerald-600"><span>Tiền thừa:</span><b>{formatCurrency(Math.max(0, Number(lastOrder.order.paid) - Number(lastOrder.order.total)))}</b></div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => window.print()}
+                className="btn-ghost !justify-center !py-3 !text-base"
+              >
+                <Printer className="size-5" /> In hoá đơn
+              </button>
+              <button onClick={startNewOrder} className="btn-primary !justify-center !py-3 !text-base">
+                Đơn mới
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* === HIDDEN PRINT RECEIPT === */}
+      {lastOrder && (
+        <PrintReceipt order={lastOrder.order} items={lastOrder.items} settings={settings} />
       )}
     </div>
   );

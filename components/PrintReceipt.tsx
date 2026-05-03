@@ -16,11 +16,15 @@ export default function PrintReceipt({
   settings?: Settings | null;
 }) {
   const change = Math.max(0, Number(order.paid || 0) - Number(order.total || 0));
-  const pmLabel = order.payment_method === 'cash' ? 'Tiền mặt' : order.payment_method === 'card' ? 'Thẻ' : order.payment_method === 'qr' ? 'QR' : (order.payment_method || '—');
+  const pmLabel = order.payment_method === 'cash' ? 'Tiền mặt'
+    : order.payment_method === 'card' ? 'Thẻ'
+    : order.payment_method === 'qr' ? 'QR'
+    : (order.payment_method || '—');
 
   return (
-    <div id="print-receipt" style={{ display: 'none' }}>
-      {/* Header */}
+    // KHÔNG dùng display:none ở đây — sẽ dùng CSS .print-only-area
+    // để giấu khi xem màn hình và hiện khi in.
+    <div id="print-receipt" className="print-only-area" aria-hidden="true">
       <div className="recpt-title">{(settings?.shop_name || 'CỬA HÀNG').toUpperCase()}</div>
       <div className="recpt-sub">Bán hàng thông minh cùng Danh Hữu Đang</div>
       {settings?.shop_address && <div className="recpt-sub">{settings.shop_address}</div>}
@@ -28,7 +32,7 @@ export default function PrintReceipt({
 
       <hr className="recpt-divider" />
 
-      <div className="recpt-title" style={{ fontSize: '12pt', marginBottom: '1mm' }}>HOÁ ĐƠN BÁN HÀNG</div>
+      <div className="recpt-title" style={{ fontSize: '12pt' }}>HOÁ ĐƠN BÁN HÀNG</div>
 
       <div className="recpt-section">
         <div><b>Số HĐ:</b> {order.code}</div>
@@ -39,12 +43,11 @@ export default function PrintReceipt({
 
       <hr className="recpt-divider" />
 
-      {/* Items */}
       <div>
         {items.map((it, idx) => {
           const unit = Number(it.price) - (Number(it.discount) || 0);
           return (
-            <div key={it.id || idx} style={{ marginBottom: '1.5mm' }}>
+            <div key={(it.id || '') + idx} style={{ marginBottom: '1.5mm' }}>
               <div className="recpt-item-name">{idx + 1}. {it.product_name}</div>
               <div className="recpt-item-line" style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>{it.quantity} × {formatCurrency(unit)}</span>
@@ -62,7 +65,6 @@ export default function PrintReceipt({
 
       <hr className="recpt-divider" />
 
-      {/* Totals */}
       <div className="recpt-section">
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <span>Tạm tính:</span><b>{formatCurrency(order.subtotal)}</b>
@@ -97,14 +99,11 @@ export default function PrintReceipt({
       <hr className="recpt-divider" />
 
       <div className="recpt-footer">
-        Cảm ơn quý khách!<br />
-        Hẹn gặp lại
+        Cảm ơn quý khách!<br />Hẹn gặp lại
       </div>
       <div className="recpt-footer" style={{ marginTop: '3mm', fontSize: '8pt' }}>
         - Bán hàng thông minh cùng Danh Hữu Đang -
       </div>
-
-      {/* Add a small bottom space for cutter */}
       <div style={{ height: '8mm' }} />
     </div>
   );
