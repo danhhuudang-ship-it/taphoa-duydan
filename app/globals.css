@@ -184,10 +184,46 @@ kbd {
   .input { padding: .55rem .8rem; min-height: 40px; }
 }
 
-/* PRINT */
+/* ====================================================================== */
+/* ============ PRINT — Bill nhiệt 58mm (thermal POS) =================== */
+/* ====================================================================== */
 @media print {
-  .no-print { display: none !important; }
+  /* Hide everything except print receipt */
+  body * { visibility: hidden !important; }
+  #print-receipt, #print-receipt * { visibility: visible !important; }
+  #print-receipt {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 58mm !important;
+    background: #fff !important;
+    color: #000 !important;
+    padding: 1mm 1.5mm !important;
+    font-family: 'Roboto', 'Be Vietnam Pro', 'Segoe UI', Tahoma, Verdana, Arial, sans-serif !important;
+    font-size: 11pt !important;
+    line-height: 1.35 !important;
+    letter-spacing: 0 !important;
+  }
+  #print-receipt h1,
+  #print-receipt h2,
+  #print-receipt h3,
+  #print-receipt p,
+  #print-receipt div { color: #000 !important; }
+  #print-receipt .recpt-title    { font-size: 14pt; font-weight: 900; text-align: center; line-height: 1.2; }
+  #print-receipt .recpt-sub      { font-size: 9pt; text-align: center; }
+  #print-receipt .recpt-section  { font-size: 10pt; }
+  #print-receipt .recpt-divider  { border: none; border-top: 1px dashed #000; margin: 2mm 0; }
+  #print-receipt .recpt-item-name { font-size: 11pt; font-weight: 700; }
+  #print-receipt .recpt-item-line { font-size: 10pt; padding-left: 2mm; }
+  #print-receipt .recpt-total     { font-size: 13pt; font-weight: 900; }
+  #print-receipt .recpt-footer    { font-size: 9pt; text-align: center; margin-top: 2mm; }
+  @page { size: 58mm auto; margin: 0; }
+  /* avoid headers/footers on Chrome print */
+  html, body { background: #fff !important; }
 }
+
+.no-print { /* placeholder */ }
+
 
 
 /* ===== HOVER GLOW (theo chuột) ===== */

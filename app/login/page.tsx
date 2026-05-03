@@ -95,9 +95,9 @@ export default function LoginPage() {
             <div>
               <label className="text-sm font-semibold text-slate-700">Tên đăng nhập</label>
               <div className="relative mt-1">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 size-[18px] text-slate-400" />
                 <input
-                  className="input pl-10"
+                  className="input !pl-12"
                   placeholder="admin"
                   type="text"
                   autoComplete="username"
@@ -112,9 +112,9 @@ export default function LoginPage() {
             <div>
               <label className="text-sm font-semibold text-slate-700">Mật khẩu</label>
               <div className="relative mt-1">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-[18px] text-slate-400" />
                 <input
-                  className="input pl-10"
+                  className="input !pl-12"
                   placeholder="••••••••"
                   type="password"
                   autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
@@ -130,13 +130,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-xs text-slate-500">
-            {mode === 'register' ? (
-              <>Mẹo: Để khách hàng dễ dùng, đăng ký <b className="text-slate-700">admin / 12345</b>.</>
-            ) : (
-              <>Tài khoản demo gợi ý: <b className="text-slate-700">admin / 12345</b> (sau khi đăng ký 1 lần).</>
-            )}
-          </div>
+
         </div>
       </div>
     </div>

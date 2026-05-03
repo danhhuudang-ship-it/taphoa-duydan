@@ -5,17 +5,23 @@ import { Search, Eye, X, Receipt as RecIcon } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { Order, OrderItem } from '@/lib/types';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import PrintReceipt from '@/components/PrintReceipt';
 
 export default function OrdersClient() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [search, setSearch] = useState('');
   const [detail, setDetail] = useState<{ order: Order; items: OrderItem[] } | null>(null);
+  const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
     (async () => {
       const supabase = createClient();
-      const { data } = await supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(200);
-      setOrders(data || []);
+      const [ordersResp, settingsResp] = await Promise.all([
+        supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(200),
+        supabase.from('settings').select('shop_name, shop_address, shop_phone').eq('id', 1).maybeSingle(),
+      ]);
+      setOrders(ordersResp.data || []);
+      setSettings(settingsResp.data || null);
     })();
   }, []);
 
@@ -141,12 +147,15 @@ export default function OrdersClient() {
               </div>
 
               <div className="shrink-0 px-5 py-3 border-t border-slate-200 bg-slate-100 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
-                <button onClick={() => window.print()} className="btn-primary w-full">In hóa đơn</button>
+                <button onClick={() => window.print()} className="btn-primary w-full !text-base !py-3">🖨️ In hoá đơn</button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Hidden print area — chỉ hiển thị khi window.print() */}
+      {detail && <PrintReceipt order={detail.order} items={detail.items} settings={settings} />}
     </div>
   );
 }

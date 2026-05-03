@@ -8,6 +8,7 @@ import type { Product, Category } from '@/lib/types';
 import { cn, formatCurrency } from '@/lib/utils';
 import ImageUploader from '@/components/ImageUploader';
 import BulkImport from '@/components/BulkImport';
+import CategoryManager from '@/components/CategoryManager';
 
 export default function ProductsClient() {
   const [items, setItems] = useState<Product[]>([]);
@@ -15,6 +16,7 @@ export default function ProductsClient() {
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<Partial<Product> | null>(null);
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [activeCat, setActiveCat] = useState<string | 'all'>('all');
 
   const load = async () => {
     const supabase = createClient();
@@ -29,6 +31,7 @@ export default function ProductsClient() {
 
   const filtered = items.filter((p) => {
     const q = search.toLowerCase();
+    if (activeCat !== 'all' && p.category_id !== activeCat) return false;
     return !q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
   });
 
@@ -64,6 +67,12 @@ export default function ProductsClient() {
 
   return (
     <div className="space-y-4">
+      <CategoryManager
+        categories={cats}
+        activeCat={activeCat}
+        onSelect={setActiveCat}
+        onChanged={load}
+      />
       <div className="flex flex-wrap items-center gap-2">
         <div className="glass flex items-center gap-2 px-3 py-2 flex-1 min-w-[200px]">
           <Search className="size-4 text-slate-400" />
