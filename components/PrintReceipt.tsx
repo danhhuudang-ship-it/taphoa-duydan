@@ -101,8 +101,13 @@ export default function PrintReceipt({
       <div className="recpt-footer">
         Cảm ơn quý khách!<br />Hẹn gặp lại
       </div>
-      <div className="recpt-footer" style={{ marginTop: '3mm', fontSize: '8pt' }}>
+      <div className="recpt-footer" style={{ marginTop: '3mm', fontSize: '9pt', fontStyle: 'italic' }}>
         - Bán hàng thông minh cùng Danh Hữu Đang -
+      </div>
+      <hr className="recpt-divider" style={{ marginTop: '2mm' }} />
+      <div className="recpt-footer" style={{ fontSize: '9pt', fontWeight: 700 }}>
+        Web App được phát triển bởi<br/>
+        Danh Hữu Đang • 0886 699 776
       </div>
       <div style={{ height: '8mm' }} />
     </div>

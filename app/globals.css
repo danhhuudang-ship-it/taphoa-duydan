@@ -549,10 +549,11 @@ html.dark .modal-panel {
     color: #000 !important;
     padding: 1mm 1.5mm !important;
     font-family: 'Roboto', 'Be Vietnam Pro', 'Segoe UI', Tahoma, Verdana, Arial, sans-serif !important;
-    font-size: 11pt !important;
-    line-height: 1.35 !important;
+    font-size: 12pt !important;
+    line-height: 1.4 !important;
     letter-spacing: 0 !important;
     z-index: 9999 !important;
+    font-weight: 600 !important;
   }
   #print-receipt h1,
   #print-receipt h2,
@@ -563,14 +564,14 @@ html.dark .modal-panel {
   #print-receipt b,
   #print-receipt hr { color: #000 !important; }
 
-  #print-receipt .recpt-title    { font-size: 14pt; font-weight: 900; text-align: center; line-height: 1.2; margin-bottom: 1mm; }
-  #print-receipt .recpt-sub      { font-size: 9pt;  text-align: center; }
-  #print-receipt .recpt-section  { font-size: 10pt; }
+  #print-receipt .recpt-title    { font-size: 16pt; font-weight: 900; text-align: center; line-height: 1.2; margin-bottom: 1mm; }
+  #print-receipt .recpt-sub      { font-size: 10pt; text-align: center; font-weight: 500; }
+  #print-receipt .recpt-section  { font-size: 11.5pt; }
   #print-receipt .recpt-divider  { border: none !important; border-top: 1px dashed #000 !important; margin: 2mm 0 !important; height: 0; }
-  #print-receipt .recpt-item-name { font-size: 11pt; font-weight: 700; }
-  #print-receipt .recpt-item-line { font-size: 10pt; padding-left: 2mm; }
-  #print-receipt .recpt-total     { font-size: 13pt; font-weight: 900; }
-  #print-receipt .recpt-footer    { font-size: 9pt;  text-align: center; margin-top: 2mm; }
+  #print-receipt .recpt-item-name { font-size: 12.5pt; font-weight: 700; }
+  #print-receipt .recpt-item-line { font-size: 11pt; padding-left: 2mm; font-weight: 600; }
+  #print-receipt .recpt-total     { font-size: 15pt; font-weight: 900; }
+  #print-receipt .recpt-footer    { font-size: 10pt; text-align: center; margin-top: 2mm; font-weight: 500; }
 
   @page { size: 58mm auto; margin: 0; }
   html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }

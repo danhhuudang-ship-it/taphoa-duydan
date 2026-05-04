@@ -168,7 +168,7 @@ export default function DebtsClient() {
                 ) : (
                   <div className="flex items-center gap-2 mt-2">
                     <input
-                      type="number" autoFocus value={editAmount}
+                      type="number" onWheel={(e) => (e.target as HTMLInputElement).blur()} autoFocus value={editAmount}
                       onChange={(e) => setEditAmount(Number(e.target.value))}
                       className="input flex-1 !text-lg font-bold text-right"
                     />
@@ -195,7 +195,7 @@ export default function DebtsClient() {
                   </div>
                   <div className="flex items-center gap-2">
                     <input
-                      type="number" value={payAmount}
+                      type="number" onWheel={(e) => (e.target as HTMLInputElement).blur()} value={payAmount}
                       onChange={(e) => setPayAmount(Number(e.target.value))}
                       placeholder="Số tiền khách trả"
                       className="input flex-1 !text-lg font-bold text-right"

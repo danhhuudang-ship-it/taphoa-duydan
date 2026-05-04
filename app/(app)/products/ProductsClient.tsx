@@ -231,22 +231,22 @@ export default function ProductsClient() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-slate-700">Giá bán *</label>
-                    <input type="number" inputMode="numeric" className="input mt-1" value={editing.price ?? 0} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) })} />
+                    <input type="number" onWheel={(e) => (e.target as HTMLInputElement).blur()} inputMode="numeric" className="input mt-1" value={editing.price ?? 0} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) })} />
                   </div>
                   <div>
                     <label className="text-xs text-slate-700">Giá vốn</label>
-                    <input type="number" inputMode="numeric" className="input mt-1" value={editing.cost ?? 0} onChange={(e) => setEditing({ ...editing, cost: Number(e.target.value) })} />
+                    <input type="number" onWheel={(e) => (e.target as HTMLInputElement).blur()} inputMode="numeric" className="input mt-1" value={editing.cost ?? 0} onChange={(e) => setEditing({ ...editing, cost: Number(e.target.value) })} />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs text-slate-700">Tồn kho</label>
-                    <input type="number" inputMode="numeric" className="input mt-1" value={editing.stock ?? 0} onChange={(e) => setEditing({ ...editing, stock: Number(e.target.value) })} />
+                    <input type="number" onWheel={(e) => (e.target as HTMLInputElement).blur()} inputMode="numeric" className="input mt-1" value={editing.stock ?? 0} onChange={(e) => setEditing({ ...editing, stock: Number(e.target.value) })} />
                   </div>
                   <div>
                     <label className="text-xs text-slate-700">Tồn tối thiểu</label>
-                    <input type="number" inputMode="numeric" className="input mt-1" value={editing.min_stock ?? 5} onChange={(e) => setEditing({ ...editing, min_stock: Number(e.target.value) })} />
+                    <input type="number" onWheel={(e) => (e.target as HTMLInputElement).blur()} inputMode="numeric" className="input mt-1" value={editing.min_stock ?? 5} onChange={(e) => setEditing({ ...editing, min_stock: Number(e.target.value) })} />
                   </div>
                 </div>
 

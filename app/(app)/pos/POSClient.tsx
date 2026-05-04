@@ -374,7 +374,7 @@ export default function POSClient() {
                 <div className="flex items-center gap-1">
                   <button onClick={() => updateQty(it.product_id, it.quantity - 1)} className="size-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center"><Minus className="size-4" /></button>
                   <input
-                    type="number"
+                    type="number" onWheel={(e) => (e.target as HTMLInputElement).blur()}
                     value={it.quantity}
                     onChange={(e) => updateQty(it.product_id, Number(e.target.value))}
                     className="w-10 text-center text-sm font-semibold bg-transparent outline-none text-slate-900 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
@@ -384,7 +384,7 @@ export default function POSClient() {
                 <div className="flex items-center gap-1 ml-auto">
                   <Tag className="size-3.5 text-amber-500" />
                   <input
-                    type="number"
+                    type="number" onWheel={(e) => (e.target as HTMLInputElement).blur()}
                     placeholder="Giảm/sp"
                     value={it.discount || ''}
                     onChange={(e) => updateDiscount(it.product_id, Number(e.target.value))}
@@ -411,7 +411,7 @@ export default function POSClient() {
           <div className="flex items-center justify-between text-sm text-slate-600">
             <span className="flex items-center gap-1"><Tag className="size-3.5" /> Giảm thêm</span>
             <input
-              type="number"
+              type="number" onWheel={(e) => (e.target as HTMLInputElement).blur()}
               value={discount}
               onChange={(e) => setDiscount(Number(e.target.value))}
               className="w-28 text-right input !py-1 !px-2 !min-h-0"
@@ -436,7 +436,7 @@ export default function POSClient() {
       {cart.length > 0 && (
         <button
           onClick={() => setCartOpen(true)}
-          className="lg:hidden fixed bottom-20 right-4 z-30 rounded-full px-5 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg flex items-center gap-2 font-bold"
+          className="lg:hidden fixed bottom-20 right-4 z-50 rounded-full px-5 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg flex items-center gap-2 font-bold"
         >
           <CartIcon className="size-5" />
           <span>{cart.length}</span>
@@ -447,9 +447,9 @@ export default function POSClient() {
 
       {/* MOBILE CART BOTTOM SHEET */}
       {cartOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-slate-900/40" onClick={() => setCartOpen(false)}>
+        <div className="lg:hidden fixed inset-0 z-[60] bg-slate-900/50" onClick={() => setCartOpen(false)}>
           <div
-            className="absolute bottom-0 inset-x-0 max-h-[88vh] bg-white rounded-t-3xl p-4 flex flex-col"
+            className="absolute bottom-0 inset-x-0 max-h-[92vh] bg-white rounded-t-3xl p-3 flex flex-col shadow-2xl pb-[max(env(safe-area-inset-bottom),0.5rem)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mx-auto w-12 h-1.5 rounded-full bg-slate-300 mb-3" />
@@ -491,7 +491,7 @@ export default function POSClient() {
                     </div>
                     <div className="flex items-center gap-1 ml-auto">
                       <Tag className="size-3.5 text-amber-500" />
-                      <input type="number" placeholder="Giảm/sp" value={it.discount || ''}
+                      <input type="number" onWheel={(e) => (e.target as HTMLInputElement).blur()} placeholder="Giảm/sp" value={it.discount || ''}
                         onChange={(e) => updateDiscount(it.product_id, Number(e.target.value))}
                         className="w-24 text-right text-xs px-2 py-1.5 rounded-md bg-amber-50 border border-amber-200 outline-none focus:border-amber-500 text-slate-900 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none" />
                     </div>
@@ -508,7 +508,7 @@ export default function POSClient() {
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-600 flex items-center gap-1"><Tag className="size-3.5" /> Giảm thêm</span>
-                <input type="number" value={discount} onChange={(e) => setDiscount(Number(e.target.value))} className="w-28 text-right input !py-1 !px-2 !min-h-0" />
+                <input type="number" onWheel={(e) => (e.target as HTMLInputElement).blur()} value={discount} onChange={(e) => setDiscount(Number(e.target.value))} className="w-28 text-right input !py-1 !px-2 !min-h-0" />
               </div>
               <div className="flex items-center justify-between text-base font-bold pt-2 border-t border-slate-200">
                 <span>Tổng tiền</span>
@@ -524,12 +524,14 @@ export default function POSClient() {
 
       {/* PAYMENT MODAL */}
       {showPay && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/40 p-4" onClick={() => setShowPay(false)}>
-          <div className="bg-white rounded-3xl p-6 w-full max-w-md border border-slate-200 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-slate-900">Thanh toán</h3>
+        <div className="fixed inset-0 z-[70] flex items-end md:items-center justify-center bg-slate-900/50 p-0 md:p-4" onClick={() => setShowPay(false)}>
+          <div className="bg-white rounded-t-3xl md:rounded-3xl w-full max-w-md max-h-[92vh] flex flex-col border border-slate-200 shadow-xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="shrink-0 flex items-center justify-between px-5 pt-4 pb-3 border-b border-slate-200 bg-white relative">
+              <div className="md:hidden mx-auto absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-slate-300" />
+              <h3 className="text-lg md:text-xl font-bold text-slate-900">Thanh toán</h3>
               <button onClick={() => setShowPay(false)} className="size-9 rounded-lg hover:bg-slate-100 flex items-center justify-center"><X className="size-5" /></button>
             </div>
+            <div className="flex-1 overflow-y-auto px-5 pt-4 pb-3 overscroll-contain">
 
             <div className="grid grid-cols-3 gap-2 mb-4">
               {([
@@ -541,13 +543,13 @@ export default function POSClient() {
                   key={id}
                   onClick={() => setPaymentMethod(id)}
                   className={cn(
-                    'rounded-xl p-3 text-sm flex flex-col items-center gap-1 border font-semibold transition',
+                    'rounded-lg p-2 text-xs md:text-sm flex flex-col items-center gap-0.5 border font-semibold transition',
                     paymentMethod === id
                       ? 'bg-indigo-600 text-white border-indigo-600'
                       : 'bg-white text-slate-700 border-slate-200 hover:border-indigo-300'
                   )}
                 >
-                  <Ic className="size-5" /> {label}
+                  <Ic className="size-4 md:size-5" /> {label}
                 </button>
               ))}
             </div>
@@ -591,7 +593,7 @@ export default function POSClient() {
                   <div>
                     <label className="text-sm font-medium text-slate-700">Khách đưa</label>
                     <input
-                      type="number" autoFocus value={paid}
+                      type="number" onWheel={(e) => (e.target as HTMLInputElement).blur()} autoFocus value={paid}
                       onChange={(e) => setPaid(Number(e.target.value))}
                       className="input mt-1 text-right text-lg font-bold"
                     />
@@ -651,7 +653,7 @@ export default function POSClient() {
                   <div>
                     <label className="text-xs font-semibold text-slate-700">Trả trước (nếu có)</label>
                     <input
-                      type="number" value={paid}
+                      type="number" onWheel={(e) => (e.target as HTMLInputElement).blur()} value={paid}
                       onChange={(e) => setPaid(Number(e.target.value))}
                       placeholder="0"
                       className="input mt-1 text-right font-bold"
@@ -681,9 +683,12 @@ export default function POSClient() {
               </label>
             </div>
 
-            <button disabled={submitting} onClick={submit} className="btn-primary w-full mt-5 !text-base !py-3">
-              {submitting ? 'Đang xử lý...' : 'Hoàn tất đơn'}
-            </button>
+            </div>
+            <div className="shrink-0 px-5 py-3 border-t border-slate-200 bg-white pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+              <button disabled={submitting} onClick={submit} className="btn-primary w-full !text-base !py-3">
+                {submitting ? 'Đang xử lý...' : 'Hoàn tất đơn'}
+              </button>
+            </div>
           </div>
         </div>
       )}
