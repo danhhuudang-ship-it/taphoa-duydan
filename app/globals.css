@@ -576,3 +576,80 @@ html.dark .modal-panel {
   @page { size: 58mm auto; margin: 0; }
   html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
 }
+
+
+/* ====================================================================== */
+/* ============== DARK MODE PATCH — fix contrast issues ================= */
+/* ====================================================================== */
+
+/* Bảng product/orders: row hover phải dùng màu tối subtle, không bị "trắng" */
+html.dark table tr:hover,
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-white\/\[0\.03\]:hover,
+html.dark .hover\:bg-white\/\[0\.05\]:hover { background-color: rgba(255,255,255,0.06) !important; }
+
+html.dark table thead tr,
+html.dark table thead { background-color: rgba(255,255,255,0.04) !important; }
+
+html.dark table tbody tr {
+  background-color: transparent !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+html.dark table tbody tr:hover {
+  background-color: rgba(99,102,241,0.08) !important;
+}
+
+/* Row đang được "active/focus" trong dark — fix highlight trắng */
+html.dark tr.bg-white,
+html.dark tr.bg-slate-50,
+html.dark tr.bg-indigo-50 {
+  background-color: rgba(99,102,241,0.10) !important;
+}
+
+/* Chip danh mục KHÔNG được chọn — màu rõ hơn trong dark */
+html.dark .chip {
+  background-color: rgba(255,255,255,0.05) !important;
+  border-color: rgba(255,255,255,0.14) !important;
+  color: #cbd5e1 !important;
+}
+html.dark .chip:hover {
+  background-color: rgba(255,255,255,0.08) !important;
+  border-color: rgba(129,140,248,0.5) !important;
+  color: #fff !important;
+}
+/* Chip ĐANG ĐƯỢC chọn (bg-indigo-600) — giữ màu rõ ràng */
+html.dark .chip.bg-indigo-600,
+html.dark .chip[class*="bg-indigo-600"] {
+  background-color: rgb(99,102,241) !important;
+  border-color: rgb(99,102,241) !important;
+  color: #fff !important;
+}
+
+/* Dashed border ("Thêm danh mục" chip) — nhìn rõ hơn */
+html.dark .border-dashed { border-color: rgba(255,255,255,0.25) !important; }
+
+/* Search bar / input wrapper — tối hơn để nổi rõ */
+html.dark .bg-slate-50 { background-color: rgba(255,255,255,0.05) !important; }
+
+/* Button trong topbar phải có background đặc */
+html.dark header .bg-white { background-color: rgba(30,33,60,0.9) !important; border-color: rgba(255,255,255,0.15) !important; }
+
+/* Telegram instruction box — fix contrast trong cả 2 mode */
+html.dark .bg-cyan-500\/5 { background-color: rgba(34,211,238,0.10) !important; }
+html.dark .border-cyan-500\/15 { border-color: rgba(34,211,238,0.35) !important; }
+
+/* Mobile cart sheet trong dark — nền tối thay vì trắng */
+html.dark [class*="rounded-t-3xl"][class*="bg-white"] { background-color: rgba(20,22,40,0.98) !important; }
+
+/* Sidebar nav active trong dark — gradient subtle hơn */
+html.dark .nav-link.active::before { background: linear-gradient(90deg, rgba(99,102,241,0.18), rgba(168,85,247,0.10)) !important; }
+
+/* Badge (Còn xx, Hết, Còn xx) trong dark */
+html.dark .badge-success { background-color: rgba(34,197,94,0.20) !important; color: #86efac !important; border-color: rgba(34,197,94,0.40) !important; }
+html.dark .badge-warn    { background-color: rgba(245,158,11,0.20) !important; color: #fcd34d !important; border-color: rgba(245,158,11,0.40) !important; }
+html.dark .badge-danger  { background-color: rgba(244,63,94,0.20) !important; color: #fca5a5 !important; border-color: rgba(244,63,94,0.40) !important; }
+
+/* Sản phẩm card icon background trong dark — không trắng quá */
+html.dark .from-indigo-50 { --tw-gradient-from: rgba(99,102,241,0.20) !important; }
+html.dark .to-violet-100,
+html.dark .to-fuchsia-100 { --tw-gradient-to: rgba(168,85,247,0.20) !important; }

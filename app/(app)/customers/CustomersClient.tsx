@@ -14,8 +14,18 @@ export default function CustomersClient() {
 
   const load = async () => {
     const supabase = createClient();
-    const { data } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
-    setItems(data || []);
+    // Đọc từ view customer_profits (đã có lãi sẵn)
+    const { data, error } = await supabase
+      .from('customer_profits')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      // Fallback nếu view chưa được tạo (chạy migration_customer_profits.sql)
+      const fb = await supabase.from('customers').select('*').order('created_at', { ascending: false });
+      setItems((fb.data as any) || []);
+    } else {
+      setItems((data as any) || []);
+    }
   };
   useEffect(() => { load(); }, []);
 
@@ -82,18 +92,26 @@ export default function CustomersClient() {
                 </div>
               </div>
               <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                <div className="rounded-lg bg-slate-50 border border-slate-200 px-3 py-2">
-                  <div className="text-slate-500">Tổng chi tiêu</div>
-                  <div className="font-bold text-indigo-700">{formatCurrency(c.total_spent || 0)}</div>
+                <div className="rounded-lg bg-indigo-50 border border-indigo-100 px-3 py-2">
+                  <div className="text-slate-600 text-[10px] uppercase tracking-wide font-semibold">Doanh thu</div>
+                  <div className="font-bold text-indigo-700">{formatCurrency((c as any).revenue ?? c.total_spent ?? 0)}</div>
+                </div>
+                <div className="rounded-lg bg-emerald-50 border border-emerald-100 px-3 py-2">
+                  <div className="text-slate-600 text-[10px] uppercase tracking-wide font-semibold">Lãi gộp</div>
+                  <div className="font-bold text-emerald-700">{formatCurrency((c as any).profit ?? 0)}</div>
                 </div>
                 <div className={cn(
                   "rounded-lg px-3 py-2 border",
                   (c.debt || 0) > 0 ? "bg-amber-50 border-amber-200" : "bg-slate-50 border-slate-200"
                 )}>
-                  <div className="text-slate-500">Đang nợ</div>
+                  <div className="text-slate-600 text-[10px] uppercase tracking-wide font-semibold">Đang nợ</div>
                   <div className={cn("font-bold", (c.debt || 0) > 0 ? "text-amber-700" : "text-slate-400")}>
                     {formatCurrency(c.debt || 0)}
                   </div>
+                </div>
+                <div className="rounded-lg bg-slate-50 border border-slate-200 px-3 py-2">
+                  <div className="text-slate-600 text-[10px] uppercase tracking-wide font-semibold">Số đơn</div>
+                  <div className="font-bold text-slate-900">{(c as any).order_count ?? 0}</div>
                 </div>
               </div>
               <div className="mt-3 flex justify-end gap-2">

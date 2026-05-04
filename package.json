@@ -20,7 +20,8 @@
     "react-hot-toast": "^2.4.1",
     "recharts": "^2.13.0",
     "tailwind-merge": "^2.5.4",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "html5-qrcode": "^2.3.8"
   },
   "devDependencies": {
     "@types/node": "^22.7.5",

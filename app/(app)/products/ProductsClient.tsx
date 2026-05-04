@@ -288,6 +288,14 @@ export default function ProductsClient() {
         )}
       </AnimatePresence>
 
+      <BarcodeScanner
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onScan={(code) => {
+          if (editing) setEditing({ ...editing, barcode: code });
+        }}
+      />
+
       <BulkImport
         open={bulkOpen}
         onClose={() => setBulkOpen(false)}

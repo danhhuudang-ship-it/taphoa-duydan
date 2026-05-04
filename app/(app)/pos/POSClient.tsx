@@ -11,6 +11,7 @@ import type { Product, Category, CartItem, Customer, Order, OrderItem } from '@/
 import { cn, formatCurrency, genOrderCode } from '@/lib/utils';
 import { useGlow } from '@/components/HoverGlow';
 import PrintReceipt from '@/components/PrintReceipt';
+import BarcodeScanner from '@/components/BarcodeScanner';
 
 export default function POSClient() {
   const [products, setProducts]   = useState<Product[]>([]);
@@ -35,6 +36,7 @@ export default function POSClient() {
   const [newCustomerName, setNewCustomerName] = useState('');
   const [newCustomerPhone, setNewCustomerPhone] = useState('');
   const [creatingCustomer, setCreatingCustomer] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -252,7 +254,14 @@ export default function POSClient() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <ScanBarcode className="size-4 text-slate-400" />
+            <button
+              type="button"
+              onClick={() => setScannerOpen(true)}
+              title="Quét mã vạch"
+              className="size-9 rounded-lg flex items-center justify-center text-indigo-600 hover:bg-indigo-50"
+            >
+              <ScanBarcode className="size-5" />
+            </button>
           </div>
         </div>
 
@@ -733,6 +742,24 @@ export default function POSClient() {
           </div>
         </div>
       )}
+
+      {/* === BARCODE SCANNER === */}
+      <BarcodeScanner
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onScan={(code) => {
+          const found = products.find(
+            (p) => (p.barcode || '') === code || p.sku === code
+          );
+          if (found) {
+            addToCart(found);
+            toast.success('Đã thêm: ' + found.name);
+          } else {
+            toast.error('Không tìm thấy SP với mã: ' + code);
+            setSearch(code);
+          }
+        }}
+      />
 
       {/* === HIDDEN PRINT RECEIPT === */}
       {lastOrder && (
