@@ -18,6 +18,7 @@ export default function ProductsClient() {
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<Partial<Product> | null>(null);
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
   const [activeCat, setActiveCat] = useState<string | 'all'>('all');
 
   const load = async () => {
@@ -249,6 +250,26 @@ export default function ProductsClient() {
                   <div>
                     <label className="text-xs text-slate-700">Tồn tối thiểu</label>
                     <input type="number" onWheel={(e) => (e.target as HTMLInputElement).blur()} inputMode="numeric" className="input mt-1" value={editing.min_stock ?? 5} onChange={(e) => setEditing({ ...editing, min_stock: Number(e.target.value) })} />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs text-slate-700">Mã vạch (Barcode)</label>
+                  <div className="relative mt-1">
+                    <input
+                      className="input pr-12"
+                      value={editing.barcode || ''}
+                      onChange={(e) => setEditing({ ...editing, barcode: e.target.value })}
+                      placeholder="8934588063015 (tùy chọn)"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setScannerOpen(true)}
+                      title="Quét mã vạch"
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 size-9 rounded-lg flex items-center justify-center text-indigo-600 hover:bg-indigo-50"
+                    >
+                      <ScanBarcode className="size-5" />
+                    </button>
                   </div>
                 </div>
 
