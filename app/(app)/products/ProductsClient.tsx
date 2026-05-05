@@ -19,6 +19,8 @@ export default function ProductsClient() {
   const [editing, setEditing] = useState<Partial<Product> | null>(null);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const [activeCat, setActiveCat] = useState<string | 'all'>('all');
 
   const load = async () => {
@@ -31,6 +33,35 @@ export default function ProductsClient() {
     setCats(c.data || []);
   };
   useEffect(() => { load(); }, []);
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+  const clearSelection = () => setSelected(new Set());
+  const toggleSelectAll = () => {
+    setSelected((prev) => {
+      const allIds = filtered.map((p) => p.id);
+      if (allIds.every((id) => prev.has(id))) return new Set();
+      return new Set(allIds);
+    });
+  };
+  const bulkDelete = async () => {
+    if (selected.size === 0) return;
+    if (!confirm(`Bạn chắc chắn muốn xoá ${selected.size} sản phẩm đã chọn?`)) return;
+    setBulkDeleting(true);
+    const supabase = createClient();
+    const ids = Array.from(selected);
+    const { error } = await supabase.from('products').delete().in('id', ids);
+    setBulkDeleting(false);
+    if (error) return toast.error(error.message);
+    toast.success(`Đã xoá ${ids.length} sản phẩm`);
+    clearSelection();
+    load();
+  };
 
   const filtered = items.filter((p) => {
     const q = search.toLowerCase();
@@ -90,6 +121,23 @@ export default function ProductsClient() {
           className="btn-primary"><Plus className="size-4" /> <span className="hidden sm:inline">Thêm sản phẩm</span><span className="sm:hidden">Thêm</span></motion.button>
       </div>
 
+      {/* BULK ACTION BAR */}
+      {selected.size > 0 && (
+        <div className="sticky top-16 md:top-20 z-40 bg-indigo-600 text-white rounded-xl shadow-lg px-4 py-3 flex items-center gap-3 motion-fade-up">
+          <div className="size-9 rounded-lg bg-white/20 flex items-center justify-center font-bold">{selected.size}</div>
+          <div className="flex-1">
+            <div className="font-semibold text-sm">Đã chọn {selected.size} sản phẩm</div>
+            <div className="text-xs text-white/80">Bấm "Xoá" để xoá hàng loạt</div>
+          </div>
+          <button onClick={clearSelection} className="btn-ghost !bg-white/15 !border-white/20 !text-white hover:!bg-white/25">
+            Bỏ chọn
+          </button>
+          <button onClick={bulkDelete} disabled={bulkDeleting} className="btn-primary !bg-white !text-rose-600 hover:!bg-rose-50 hover:!text-rose-700">
+            <Trash2 className="size-4" /> {bulkDeleting ? 'Đang xoá...' : `Xoá ${selected.size}`}
+          </button>
+        </div>
+      )}
+
       {/* MOBILE: Card list */}
       <div className="md:hidden space-y-2">
         <AnimatePresence>
@@ -97,10 +145,16 @@ export default function ProductsClient() {
             <motion.div
               key={p.id} layout
               initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="glow-card bounce p-3"
+              className={cn("glow-card bounce p-3", selected.has(p.id) && "ring-2 ring-indigo-400")}
             >
               <div className="flex items-start gap-3">
-                <div className="size-12 rounded-xl bg-gradient-to-br from-indigo-500/30 to-fuchsia-500/30 flex items-center justify-center text-xl shrink-0 overflow-hidden">
+                <input
+                  type="checkbox"
+                  className="size-5 accent-indigo-600 mt-3 shrink-0"
+                  checked={selected.has(p.id)}
+                  onChange={() => toggleSelect(p.id)}
+                />
+                <div className="size-12 rounded-xl bg-gradient-to-br from-indigo-100 to-fuchsia-100 flex items-center justify-center text-xl shrink-0 overflow-hidden">
                   {p.image_url ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img src={p.image_url} alt={p.name} className="size-full object-cover" />
@@ -129,29 +183,50 @@ export default function ProductsClient() {
         {!filtered.length && <div className="text-center text-slate-500 py-10">Chưa có sản phẩm.</div>}
       </div>
 
-      {/* DESKTOP: Compact table - không cần scroll ngang */}
-      <div className="hidden md:block glass-strong rounded-2xl overflow-hidden">
-        <table className="w-full">
+      {/* DESKTOP: Bảng có checkbox + scroll-x dự phòng */}
+      <div className="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[760px]">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
-              <th className="text-left text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-4 py-3">Sản phẩm</th>
-              <th className="text-left text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-3 py-3 w-32">Danh mục</th>
-              <th className="text-right text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-3 py-3 w-32">Giá</th>
-              <th className="text-center text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-3 py-3 w-28">Tồn</th>
-              <th className="text-right text-[11px] uppercase tracking-wider text-slate-400 font-semibold px-3 py-3 w-24"></th>
+              <th className="px-3 py-3 w-10">
+                <input
+                  type="checkbox"
+                  className="size-4 accent-indigo-600 cursor-pointer"
+                  checked={filtered.length > 0 && filtered.every((p) => selected.has(p.id))}
+                  onChange={toggleSelectAll}
+                  title="Chọn tất cả"
+                />
+              </th>
+              <th className="text-left text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-3 py-3">Sản phẩm</th>
+              <th className="text-left text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-3 py-3 w-36">Danh mục</th>
+              <th className="text-right text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-3 py-3 w-28">Giá</th>
+              <th className="text-center text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-3 py-3 w-24">Tồn</th>
+              <th className="text-right text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-3 py-3 w-32">Thao tác</th>
             </tr>
           </thead>
           <tbody>
-            <AnimatePresence>
-              {filtered.map((p) => (
-                <motion.tr
-                  key={p.id} layout
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="border-b border-slate-100 hover:bg-slate-50 transition"
+            {filtered.map((p) => {
+              const isChecked = selected.has(p.id);
+              return (
+                <tr
+                  key={p.id}
+                  className={cn(
+                    'border-b border-slate-100 hover:bg-slate-50 transition',
+                    isChecked && 'bg-indigo-50/60'
+                  )}
                 >
-                  <td className="px-4 py-2.5">
+                  <td className="px-3 py-2.5">
+                    <input
+                      type="checkbox"
+                      className="size-4 accent-indigo-600 cursor-pointer"
+                      checked={isChecked}
+                      onChange={() => toggleSelect(p.id)}
+                    />
+                  </td>
+                  <td className="px-3 py-2.5">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="size-10 rounded-lg bg-gradient-to-br from-indigo-500/30 to-fuchsia-500/30 flex items-center justify-center text-base shrink-0 overflow-hidden">
+                      <div className="size-10 rounded-lg bg-gradient-to-br from-indigo-100 to-fuchsia-100 flex items-center justify-center text-base shrink-0 overflow-hidden">
                         {p.image_url ? (
                           /* eslint-disable-next-line @next/next/no-img-element */
                           <img src={p.image_url} alt="" className="size-full object-cover" />
@@ -160,13 +235,13 @@ export default function ProductsClient() {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <div className="font-semibold text-sm truncate">{p.name}</div>
-                        <div className="text-[11px] text-slate-400 font-mono truncate">{p.sku}</div>
+                        <div className="font-semibold text-sm text-slate-900 truncate">{p.name}</div>
+                        <div className="text-[11px] text-slate-500 font-mono truncate">{p.sku}</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-3 py-2.5 text-sm text-slate-700 truncate">{p.categories?.name || '—'}</td>
-                  <td className="px-3 py-2.5 text-right font-semibold text-sm whitespace-nowrap">{formatCurrency(p.price)}</td>
+                  <td className="px-3 py-2.5 text-right font-semibold text-sm whitespace-nowrap text-slate-900">{formatCurrency(p.price)}</td>
                   <td className="px-3 py-2.5 text-center">
                     <span className={cn('badge whitespace-nowrap', p.stock <= 0 ? 'badge-danger' : p.stock < (p.min_stock || 5) ? 'badge-warn' : 'badge-success')}>
                       {p.stock} {p.unit}
@@ -178,14 +253,15 @@ export default function ProductsClient() {
                       <button onClick={() => remove(p.id)} title="Xoá" className="btn-delete !min-h-9 !py-1.5 !px-2.5"><Trash2 className="size-4" /></button>
                     </div>
                   </td>
-                </motion.tr>
-              ))}
-            </AnimatePresence>
+                </tr>
+              );
+            })}
             {!filtered.length && (
-              <tr><td colSpan={5} className="text-center text-slate-500 py-10">Chưa có sản phẩm.</td></tr>
+              <tr><td colSpan={6} className="text-center text-slate-500 py-10">Chưa có sản phẩm.</td></tr>
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* === MODAL THÊM/SỬA SP - SCROLLABLE === */}
