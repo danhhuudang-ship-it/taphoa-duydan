@@ -11,7 +11,8 @@ import type { Product, Category, CartItem, Customer, Order, OrderItem } from '@/
 import { cn, formatCurrency, genOrderCode } from '@/lib/utils';
 import { useGlow } from '@/components/HoverGlow';
 import PrintReceipt from '@/components/PrintReceipt';
-import BarcodeScanner from '@/components/BarcodeScanner';
+import dynamic from 'next/dynamic';
+const BarcodeScanner = dynamic(() => import('@/components/BarcodeScanner'), { ssr: false });
 
 export default function POSClient() {
   const [products, setProducts]   = useState<Product[]>([]);

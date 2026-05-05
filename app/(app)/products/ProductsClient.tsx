@@ -1,14 +1,16 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Pencil, Trash2, Search, X, Save, FileSpreadsheet } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, X, Save, FileSpreadsheet, ScanBarcode } from 'lucide-react';
 import toast from 'react-hot-toast';
+import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
 import type { Product, Category } from '@/lib/types';
 import { cn, formatCurrency } from '@/lib/utils';
 import ImageUploader from '@/components/ImageUploader';
 import BulkImport from '@/components/BulkImport';
 import CategoryManager from '@/components/CategoryManager';
+const BarcodeScanner = dynamic(() => import('@/components/BarcodeScanner'), { ssr: false });
 
 export default function ProductsClient() {
   const [items, setItems] = useState<Product[]>([]);
