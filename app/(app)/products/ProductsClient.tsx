@@ -183,13 +183,20 @@ export default function ProductsClient() {
         {!filtered.length && <div className="text-center text-slate-500 py-10">Chưa có sản phẩm.</div>}
       </div>
 
-      {/* DESKTOP: Bảng có checkbox + scroll-x dự phòng */}
+      {/* DESKTOP: Bảng compact, fit viewport */}
       <div className="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px]">
+        <table className="w-full table-fixed">
+          <colgroup>
+            <col className="w-10" />
+            <col />
+            <col className="w-28 lg:w-32" />
+            <col className="w-24 lg:w-28" />
+            <col className="w-20 lg:w-24" />
+            <col className="w-24" />
+          </colgroup>
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
-              <th className="px-3 py-3 w-10">
+              <th className="px-2 py-3">
                 <input
                   type="checkbox"
                   className="size-4 accent-indigo-600 cursor-pointer"
@@ -198,11 +205,11 @@ export default function ProductsClient() {
                   title="Chọn tất cả"
                 />
               </th>
-              <th className="text-left text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-3 py-3">Sản phẩm</th>
-              <th className="text-left text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-3 py-3 w-36">Danh mục</th>
-              <th className="text-right text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-3 py-3 w-28">Giá</th>
-              <th className="text-center text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-3 py-3 w-24">Tồn</th>
-              <th className="text-right text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-3 py-3 w-32">Thao tác</th>
+              <th className="text-left text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-2 py-3">Sản phẩm</th>
+              <th className="text-left text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-2 py-3">Danh mục</th>
+              <th className="text-right text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-2 py-3">Giá</th>
+              <th className="text-center text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-2 py-3">Tồn</th>
+              <th className="text-center text-[11px] uppercase tracking-wider text-slate-500 font-semibold px-2 py-3">Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -216,7 +223,7 @@ export default function ProductsClient() {
                     isChecked && 'bg-indigo-50/60'
                   )}
                 >
-                  <td className="px-3 py-2.5">
+                  <td className="px-2 py-2">
                     <input
                       type="checkbox"
                       className="size-4 accent-indigo-600 cursor-pointer"
@@ -224,9 +231,9 @@ export default function ProductsClient() {
                       onChange={() => toggleSelect(p.id)}
                     />
                   </td>
-                  <td className="px-3 py-2.5">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="size-10 rounded-lg bg-gradient-to-br from-indigo-100 to-fuchsia-100 flex items-center justify-center text-base shrink-0 overflow-hidden">
+                  <td className="px-2 py-2 min-w-0">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="size-9 rounded-lg bg-gradient-to-br from-indigo-100 to-fuchsia-100 flex items-center justify-center text-base shrink-0 overflow-hidden">
                         {p.image_url ? (
                           /* eslint-disable-next-line @next/next/no-img-element */
                           <img src={p.image_url} alt="" className="size-full object-cover" />
@@ -234,23 +241,40 @@ export default function ProductsClient() {
                           <span>{p.categories?.icon || '📦'}</span>
                         )}
                       </div>
-                      <div className="min-w-0">
-                        <div className="font-semibold text-sm text-slate-900 truncate">{p.name}</div>
-                        <div className="text-[11px] text-slate-500 font-mono truncate">{p.sku}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-[13px] text-slate-900 truncate" title={p.name}>{p.name}</div>
+                        <div className="text-[10px] text-slate-500 font-mono truncate">{p.sku}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-3 py-2.5 text-sm text-slate-700 truncate">{p.categories?.name || '—'}</td>
-                  <td className="px-3 py-2.5 text-right font-semibold text-sm whitespace-nowrap text-slate-900">{formatCurrency(p.price)}</td>
-                  <td className="px-3 py-2.5 text-center">
-                    <span className={cn('badge whitespace-nowrap', p.stock <= 0 ? 'badge-danger' : p.stock < (p.min_stock || 5) ? 'badge-warn' : 'badge-success')}>
-                      {p.stock} {p.unit}
+                  <td className="px-2 py-2 text-xs text-slate-700 truncate" title={p.categories?.name || ''}>{p.categories?.name || '—'}</td>
+                  <td className="px-2 py-2 text-right font-semibold text-[13px] whitespace-nowrap text-slate-900">{formatCurrency(p.price)}</td>
+                  <td className="px-2 py-2 text-center">
+                    <span className={cn(
+                      'inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap',
+                      p.stock <= 0 ? 'bg-rose-100 text-rose-700'
+                      : p.stock < (p.min_stock || 5) ? 'bg-amber-100 text-amber-700'
+                      : 'bg-emerald-100 text-emerald-700'
+                    )} title={`Tồn: ${p.stock} ${p.unit}`}>
+                      {p.stock <= 0 ? 'Hết' : `${p.stock}`}
                     </span>
                   </td>
-                  <td className="px-3 py-2.5 text-right">
-                    <div className="inline-flex gap-1.5">
-                      <button onClick={() => setEditing(p)} title="Sửa" className="btn-edit !min-h-9 !py-1.5 !px-2.5"><Pencil className="size-4" /></button>
-                      <button onClick={() => remove(p.id)} title="Xoá" className="btn-delete !min-h-9 !py-1.5 !px-2.5"><Trash2 className="size-4" /></button>
+                  <td className="px-2 py-2 text-center">
+                    <div className="inline-flex gap-1">
+                      <button
+                        onClick={() => setEditing(p)}
+                        title="Sửa"
+                        className="size-8 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 flex items-center justify-center transition"
+                      >
+                        <Pencil className="size-3.5" />
+                      </button>
+                      <button
+                        onClick={() => remove(p.id)}
+                        title="Xoá"
+                        className="size-8 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 flex items-center justify-center transition"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -261,7 +285,6 @@ export default function ProductsClient() {
             )}
           </tbody>
         </table>
-        </div>
       </div>
 
       {/* === MODAL THÊM/SỬA SP - SCROLLABLE === */}
