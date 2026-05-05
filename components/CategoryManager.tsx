@@ -142,7 +142,7 @@ export default function CategoryManager({
               <h3 className="text-lg font-bold text-slate-900">{editing.id ? 'Sửa danh mục' : 'Thêm danh mục'}</h3>
               <button onClick={() => setEditing(null)} className="size-9 rounded-lg hover:bg-slate-100 flex items-center justify-center"><X className="size-5" /></button>
             </div>
-            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); save(); }} className="flex-1 flex flex-col min-h-0"><div className="flex-1 overflow-y-auto p-5 space-y-4">
               <div>
                 <label className="text-sm font-semibold text-slate-700">Tên danh mục *</label>
                 <input
@@ -191,11 +191,12 @@ export default function CategoryManager({
               </div>
             </div>
             <div className="shrink-0 px-5 py-3 border-t border-slate-200 bg-slate-50 flex justify-end gap-2 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
-              <button onClick={() => setEditing(null)} className="btn-ghost">Huỷ</button>
-              <button onClick={save} disabled={saving} className="btn-primary">
+              <button type="button" onClick={() => setEditing(null)} className="btn-ghost">Huỷ</button>
+              <button type="submit" disabled={saving} className="btn-primary">
                 {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Lưu
               </button>
             </div>
+            </form>
           </div>
         </div>
       )}

@@ -143,7 +143,7 @@ export default function CustomersClient() {
                 <h3 className="text-lg md:text-xl font-bold">{editing.id ? 'Sửa khách hàng' : 'Thêm khách hàng'}</h3>
                 <button onClick={() => setEditing(null)} className="size-9 rounded-lg hover:bg-slate-200 flex items-center justify-center"><X className="size-5" /></button>
               </div>
-              <div className="flex-1 overflow-y-auto p-5 space-y-3 overscroll-contain">
+              <form onSubmit={(e) => { e.preventDefault(); save(); }} className="flex-1 flex flex-col min-h-0"><div className="flex-1 overflow-y-auto p-5 space-y-3 overscroll-contain">
                 <div><label className="text-xs">Tên *</label><input className="input mt-1" value={editing.name || ''} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></div>
                 <div className="grid grid-cols-2 gap-2">
                   <div><label className="text-xs">SĐT</label><input className="input mt-1" value={editing.phone || ''} onChange={(e) => setEditing({ ...editing, phone: e.target.value })} /></div>
@@ -153,9 +153,10 @@ export default function CustomersClient() {
                 <div><label className="text-xs">Ghi chú</label><textarea className="input mt-1" rows={2} value={editing.notes || ''} onChange={(e) => setEditing({ ...editing, notes: e.target.value })} /></div>
               </div>
               <div className="shrink-0 px-5 py-3 border-t border-slate-200 bg-slate-100 flex justify-end gap-2 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
-                <button onClick={() => setEditing(null)} className="btn-ghost">Hủy</button>
-                <motion.button whileTap={{ scale: 0.97 }} onClick={save} className="btn-primary"><Save className="size-4" /> Lưu</motion.button>
+                <button type="button" onClick={() => setEditing(null)} className="btn-ghost">Hủy</button>
+                <motion.button type="submit" whileTap={{ scale: 0.97 }} className="btn-primary"><Save className="size-4" /> Lưu</motion.button>
               </div>
+              </form>
             </motion.div>
           </motion.div>
         )}
