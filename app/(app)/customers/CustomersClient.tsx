@@ -14,18 +14,23 @@ export default function CustomersClient() {
 
   const load = async () => {
     const supabase = createClient();
-    // Đọc từ view customer_profits (đã có lãi sẵn)
-    const { data, error } = await supabase
-      .from('customer_profits')
+    // Thử đọc từ view customer_profits (có lãi sẵn). Nếu view chưa tạo → fallback.
+    try {
+      const { data, error } = await supabase
+        .from('customer_profits')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!error && data) {
+        setItems(data as any);
+        return;
+      }
+    } catch {}
+    // Fallback: query bảng customers gốc
+    const { data: fbData } = await supabase
+      .from('customers')
       .select('*')
       .order('created_at', { ascending: false });
-    if (error) {
-      // Fallback nếu view chưa được tạo (chạy migration_customer_profits.sql)
-      const fb = await supabase.from('customers').select('*').order('created_at', { ascending: false });
-      setItems((fb.data as any) || []);
-    } else {
-      setItems((data as any) || []);
-    }
+    setItems((fbData as any) || []);
   };
   useEffect(() => { load(); }, []);
 

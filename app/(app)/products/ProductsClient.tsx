@@ -8,9 +8,9 @@ import { createClient } from '@/lib/supabase/client';
 import type { Product, Category } from '@/lib/types';
 import { cn, formatCurrency } from '@/lib/utils';
 import ImageUploader from '@/components/ImageUploader';
-import BulkImport from '@/components/BulkImport';
 import CategoryManager from '@/components/CategoryManager';
 const BarcodeScanner = dynamic(() => import('@/components/BarcodeScanner'), { ssr: false });
+const BulkImport = dynamic(() => import('@/components/BulkImport'), { ssr: false });
 
 export default function ProductsClient() {
   const [items, setItems] = useState<Product[]>([]);

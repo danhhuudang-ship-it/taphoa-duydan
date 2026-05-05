@@ -20,12 +20,22 @@ export default function DebtsClient() {
 
   const load = async () => {
     const supabase = createClient();
-    const { data } = await supabase
-      .from('customers')
-      .select('*')
-      .gt('debt', 0)
-      .order('debt', { ascending: false });
-    setCustomers((data as any) || []);
+    try {
+      const { data, error } = await supabase
+        .from('customers')
+        .select('*')
+        .gt('debt', 0)
+        .order('debt', { ascending: false });
+      if (error) {
+        // Cột debt chưa tồn tại — chạy migration_debt.sql
+        toast.error('Chưa có dữ liệu công nợ — vui lòng chạy migration_debt.sql trên Supabase');
+        setCustomers([]);
+        return;
+      }
+      setCustomers((data as any) || []);
+    } catch (e) {
+      setCustomers([]);
+    }
   };
 
   useEffect(() => { load(); }, []);
