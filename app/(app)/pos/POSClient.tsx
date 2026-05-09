@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState, useTransition, useDeferredValue } from 'react';
 import {
   Search, Plus, Minus, Trash2, ScanBarcode, X, CreditCard, Banknote, QrCode,
   ShoppingCart as CartIcon, Receipt, Tag, UserPlus, CheckCircle2, Printer,
@@ -14,11 +14,71 @@ import PrintReceipt from '@/components/PrintReceipt';
 import dynamic from 'next/dynamic';
 const BarcodeScanner = dynamic(() => import('@/components/BarcodeScanner'), { ssr: false });
 
+const CategoryChip = memo(function CategoryChip({
+  active, label, icon, onClick,
+}: {
+  active: boolean;
+  label: string;
+  icon?: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'px-3.5 py-2 rounded-full text-sm font-semibold border flex items-center gap-1.5 active:scale-95 transition-[background-color,border-color,box-shadow,transform] duration-100',
+        active
+          ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200'
+          : 'bg-white text-slate-700 border-slate-200 hover:border-indigo-300 hover:shadow-sm'
+      )}
+    >
+      {icon && <span>{icon}</span>} {label}
+    </button>
+  );
+});
+
+const ProductCard = memo(function ProductCard({
+  p, onAdd,
+}: {
+  p: Product;
+  onAdd: (p: Product) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onAdd(p)}
+      className="prod-card text-left flex flex-col gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 hover:shadow-sm active:scale-[0.97] transition-[border-color,box-shadow,transform] duration-150"
+      style={{ contain: 'layout style' }}
+    >
+      <div className="aspect-square rounded-lg bg-gradient-to-br from-indigo-50 to-violet-100 flex items-center justify-center text-3xl overflow-hidden">
+        {p.image_url ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+        ) : (
+          <span>{p.categories?.icon || '🛒'}</span>
+        )}
+      </div>
+      <div className="flex flex-col gap-1 min-w-0">
+        <div className="text-[10px] text-slate-500 font-mono">{p.sku}</div>
+        <div className="font-semibold text-[13px] leading-tight line-clamp-2 text-slate-900 min-h-[2.4em]">{p.name}</div>
+        <div className="flex items-center justify-between gap-1 mt-0.5">
+          <div className="font-bold text-[14px] text-indigo-700 whitespace-nowrap">{formatCurrency(p.price)}</div>
+          <span className={cn('badge', p.stock <= 0 ? 'badge-danger' : p.stock < (p.min_stock || 5) ? 'badge-warn' : 'badge-success')}>
+            {p.stock <= 0 ? 'Hết' : `Còn ${p.stock}`}
+          </span>
+        </div>
+      </div>
+    </button>
+  );
+});
+
 export default function POSClient() {
   const [products, setProducts]   = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [customers, setCustomers]   = useState<Customer[]>([]);
   const [activeCat, setActiveCat]   = useState<string | 'all'>('all');
+  const [isPending, startTransition] = useTransition();
   const [search, setSearch]         = useState('');
   const [cart, setCart]             = useState<CartItem[]>([]);
   const [discount, setDiscount]     = useState(0);
@@ -70,14 +130,16 @@ export default function POSClient() {
     return () => window.removeEventListener('keydown', onKey);
   }, [cart.length]);
 
+  // Dùng deferredValue cho search → input gõ mượt, list filter chậm hơn vài ms
+  const deferredSearch = useDeferredValue(search);
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = deferredSearch.trim().toLowerCase();
     return products.filter((p) => {
       if (activeCat !== 'all' && p.category_id !== activeCat) return false;
       if (q && !(p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q))) return false;
       return true;
     });
-  }, [products, activeCat, search]);
+  }, [products, activeCat, deferredSearch]);
 
   const subtotal = cart.reduce((s, i) => s + (i.price - (i.discount || 0)) * i.quantity, 0);
   const total = Math.max(0, subtotal - Number(discount || 0));
@@ -268,62 +330,31 @@ export default function POSClient() {
 
         {/* Category chips */}
         <div className="flex flex-wrap gap-2 mb-3">
-          <button
-            onClick={() => setActiveCat('all')}
-            className={cn(
-              'chip px-3.5 py-2 rounded-full text-sm font-semibold border',
-              activeCat === 'all'
-                ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200'
-                : 'bg-white text-slate-700 border-slate-200 hover:border-indigo-300 hover:shadow-sm'
-            )}
-          >
-            Tất cả
-          </button>
+          <CategoryChip
+            active={activeCat === 'all'}
+            label="Tất cả"
+            onClick={() => startTransition(() => setActiveCat('all'))}
+          />
           {categories.map((c) => (
-            <button
+            <CategoryChip
               key={c.id}
-              onClick={() => setActiveCat(c.id)}
-              className={cn(
-                'chip px-3.5 py-2 rounded-full text-sm font-semibold border flex items-center gap-1.5',
-                activeCat === c.id
-                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200'
-                  : 'bg-white text-slate-700 border-slate-200 hover:border-indigo-300 hover:shadow-sm'
-              )}
-            >
-              <span>{c.icon}</span> {c.name}
-            </button>
+              active={activeCat === c.id}
+              icon={c.icon || undefined}
+              label={c.name}
+              onClick={() => startTransition(() => setActiveCat(c.id))}
+            />
           ))}
         </div>
 
         {/* Product grid - không dùng AnimatePresence để click chuyển danh mục mượt */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5">
+        <div
+          className={cn(
+            "grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5 transition-opacity",
+            isPending && "opacity-60"
+          )}
+        >
           {filtered.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => addToCart(p)}
-              onMouseMove={glow.onMouseMove}
-              className="glow-card bounce p-2.5 text-left flex flex-col gap-2"
-              style={{ willChange: 'transform' }}
-            >
-              <div className="aspect-square rounded-lg bg-gradient-to-br from-indigo-50 to-violet-100 flex items-center justify-center text-3xl overflow-hidden">
-                {p.image_url ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" loading="lazy" />
-                ) : (
-                  <span>{p.categories?.icon || '🛒'}</span>
-                )}
-              </div>
-              <div className="flex flex-col gap-1 min-w-0">
-                <div className="text-[10px] text-slate-500 font-mono">{p.sku}</div>
-                <div className="font-semibold text-[13px] leading-tight line-clamp-2 text-slate-900 min-h-[2.4em]">{p.name}</div>
-                <div className="flex items-center justify-between gap-1 mt-0.5">
-                  <div className="font-bold text-[14px] text-indigo-700 whitespace-nowrap">{formatCurrency(p.price)}</div>
-                  <span className={cn('badge', p.stock <= 0 ? 'badge-danger' : p.stock < (p.min_stock || 5) ? 'badge-warn' : 'badge-success')}>
-                    {p.stock <= 0 ? 'Hết' : `Còn ${p.stock}`}
-                  </span>
-                </div>
-              </div>
-            </button>
+            <ProductCard key={p.id} p={p} onAdd={addToCart} />
           ))}
           {!filtered.length && (
             <div className="col-span-full text-center text-slate-400 py-10">

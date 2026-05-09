@@ -553,7 +553,7 @@ html.dark .modal-panel {
     line-height: 1.4 !important;
     letter-spacing: 0 !important;
     z-index: 9999 !important;
-    font-weight: 600 !important;
+    font-weight: 500 !important;
   }
   #print-receipt h1,
   #print-receipt h2,
@@ -653,3 +653,14 @@ html.dark .badge-danger  { background-color: rgba(244,63,94,0.20) !important; co
 html.dark .from-indigo-50 { --tw-gradient-from: rgba(99,102,241,0.20) !important; }
 html.dark .to-violet-100,
 html.dark .to-fuchsia-100 { --tw-gradient-to: rgba(168,85,247,0.20) !important; }
+
+
+/* Print weight refinements */
+@media print {
+  #print-receipt .recpt-info { font-weight: 500 !important; }
+  #print-receipt .recpt-info b,
+  #print-receipt .recpt-info strong { font-weight: 700 !important; }
+  #print-receipt .recpt-dev  { font-weight: 600 !important; font-style: normal; }
+  /* Items breakdown line: chỉ thành tiền in đậm, còn lại nhẹ */
+  #print-receipt .recpt-item-line { font-weight: 500 !important; }
+}
