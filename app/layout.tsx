@@ -11,6 +11,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  // Tắt auto-zoom khi focus input trên mobile (iOS Safari)
+  maximumScale: 1,
+  userScalable: false,
 };
 
 const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();`;

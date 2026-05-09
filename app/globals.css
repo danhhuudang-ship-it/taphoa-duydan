@@ -181,6 +181,19 @@ kbd {
 /* ===== MOBILE TWEAKS ===== */
 @media (max-width: 768px) {
   body { font-size: 15px; }
+  /* Phải ≥16px nếu không iOS Safari auto-zoom khi focus */
+  .input,
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
   .input { padding: .55rem .8rem; min-height: 40px; }
 }
 

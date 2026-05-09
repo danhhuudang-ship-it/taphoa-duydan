@@ -100,6 +100,22 @@ export default function POSClient() {
   const [scannerOpen, setScannerOpen] = useState(false);
 
   useEffect(() => {
+    // 1) HIỆN cache localStorage NGAY LẬP TỨC (không đợi network)
+    try {
+      const cP  = localStorage.getItem('pos_cache_products');
+      const cC  = localStorage.getItem('pos_cache_categories');
+      const cCu = localStorage.getItem('pos_cache_customers');
+      const cSt = localStorage.getItem('pos_cache_settings');
+      if (cP)  setProducts(JSON.parse(cP));
+      if (cC)  setCategories(JSON.parse(cC));
+      if (cCu) setCustomers(JSON.parse(cCu));
+      if (cSt) setSettings(JSON.parse(cSt));
+
+      const v = localStorage.getItem('pos_auto_print');
+      if (v !== null) setAutoPrint(v === '1');
+    } catch {}
+
+    // 2) Sau đó fetch nền & update + lưu cache mới
     (async () => {
       const supabase = createClient();
       const [p, c, cu, st] = await Promise.all([
@@ -108,15 +124,20 @@ export default function POSClient() {
         supabase.from('customers').select('*').order('name'),
         supabase.from('settings').select('shop_name, shop_address, shop_phone').eq('id', 1).maybeSingle(),
       ]);
-      setProducts((p.data as any) || []);
-      setCategories(c.data || []);
-      setCustomers(cu.data || []);
-      setSettings(st.data || null);
+      const pData = (p.data as any) || [];
+      const cData = c.data || [];
+      const cuData = cu.data || [];
+      const stData = st.data || null;
+      setProducts(pData);
+      setCategories(cData);
+      setCustomers(cuData);
+      setSettings(stData);
 
-      // Load auto-print preference từ localStorage
       try {
-        const v = localStorage.getItem('pos_auto_print');
-        if (v !== null) setAutoPrint(v === '1');
+        localStorage.setItem('pos_cache_products', JSON.stringify(pData));
+        localStorage.setItem('pos_cache_categories', JSON.stringify(cData));
+        localStorage.setItem('pos_cache_customers', JSON.stringify(cuData));
+        localStorage.setItem('pos_cache_settings', JSON.stringify(stData));
       } catch {}
     })();
   }, []);
@@ -311,7 +332,6 @@ export default function POSClient() {
           <div className="flex items-center gap-2 px-3 py-2 flex-1 min-w-[220px] rounded-xl bg-white border border-slate-200">
             <Search className="size-4 text-slate-400" />
             <input
-              autoFocus
               className="bg-transparent outline-none text-[15px] flex-1 text-slate-700"
               placeholder="Tìm tên/SKU/mã vạch..."
               value={search}
