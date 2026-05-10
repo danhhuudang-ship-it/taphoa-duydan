@@ -10,7 +10,7 @@ import {
 import { createClient } from '@/lib/supabase/client';
 import StatCard from '@/components/StatCard';
 import { MotionGrid, MotionItem } from '@/components/MotionGrid';
-import { formatCurrency, formatDateShort } from '@/lib/utils';
+import { cn, formatCurrency, formatDateShort } from '@/lib/utils';
 
 type Stats = {
   todayRevenue: number;
@@ -27,6 +27,7 @@ const COLORS = ['#6366f1', '#ec4899', '#06b6d4', '#f59e0b', '#10b981', '#8b5cf6'
 export default function DashboardClient() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [expiring, setExpiring] = useState<any[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -35,14 +36,17 @@ export default function DashboardClient() {
       const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate() - 6);
 
       const [
-        ordersResp, productsResp, customersResp, lowResp, itemsResp,
+        ordersResp, productsResp, customersResp, lowResp, itemsResp, expiringResp,
       ] = await Promise.all([
         supabase.from('orders').select('total, created_at').gte('created_at', weekAgo.toISOString()),
         supabase.from('products').select('id', { count: 'exact', head: true }),
         supabase.from('customers').select('id', { count: 'exact', head: true }),
         supabase.from('products').select('id, name, stock, min_stock').lt('stock', 10).limit(50),
         supabase.from('order_items').select('product_name, quantity, total, created_at').gte('created_at', weekAgo.toISOString()),
+        supabase.from('expiring_products').select('*').limit(20),
       ]);
+
+      setExpiring((expiringResp as any)?.data || []);
 
       const orders = ordersResp.data || [];
       const todayOrders = orders.filter((o) => new Date(o.created_at) >= today).length;
@@ -159,6 +163,52 @@ export default function DashboardClient() {
           <div className="text-[11px] text-slate-400 text-center">Tỉ trọng doanh thu top sản phẩm</div>
         </motion.div>
       </div>
+
+      {/* CẬN DATE ALERT */}
+      {expiring.length > 0 && (
+        <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay:.08 }} className="glow-card p-5 border-amber-300">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold flex items-center gap-2">
+              <span className="text-xl">⚠️</span>
+              <span>Sản phẩm cận date (≤ 30 ngày)</span>
+              <span className="badge badge-warn">{expiring.length}</span>
+            </h3>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-72 overflow-y-auto">
+            {expiring.map((it, idx) => (
+              <div key={idx} className={cn(
+                "rounded-xl border p-2.5 flex items-center gap-2.5",
+                it.days_left <= 7 ? "bg-rose-50 border-rose-200"
+                : it.days_left <= 14 ? "bg-amber-50 border-amber-200"
+                : "bg-yellow-50 border-yellow-100"
+              )}>
+                <div className="size-10 rounded-lg bg-white flex items-center justify-center text-lg shrink-0 overflow-hidden border border-slate-100">
+                  {it.image_url ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={it.image_url} alt="" className="size-full object-cover" />
+                  ) : (
+                    <span>{it.category_icon || '📦'}</span>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-[13px] text-slate-900 truncate">{it.name}</div>
+                  <div className="text-[11px] text-slate-600">
+                    HSD: <b>{new Date(it.expiry_date).toLocaleDateString('vi-VN')}</b>
+                  </div>
+                  <div className={cn(
+                    "text-[11px] font-bold",
+                    it.days_left <= 7 ? "text-rose-700"
+                    : it.days_left <= 14 ? "text-amber-700"
+                    : "text-yellow-700"
+                  )}>
+                    Còn {it.days_left} ngày · {it.batch_quantity} {it.unit}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay:.1 }} className="glow-card p-5">
         <h3 className="font-semibold mb-4">Top sản phẩm bán chạy 7 ngày</h3>

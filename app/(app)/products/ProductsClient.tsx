@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Pencil, Trash2, Search, X, Save, FileSpreadsheet, ScanBarcode } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, X, Save, FileSpreadsheet, ScanBarcode, PackagePlus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
@@ -9,6 +9,7 @@ import type { Product, Category } from '@/lib/types';
 import { cn, formatCurrency } from '@/lib/utils';
 import ImageUploader from '@/components/ImageUploader';
 import CategoryManager from '@/components/CategoryManager';
+const StockIn = dynamic(() => import('@/components/StockIn'), { ssr: false });
 const BarcodeScanner = dynamic(() => import('@/components/BarcodeScanner'), { ssr: false });
 const BulkImport = dynamic(() => import('@/components/BulkImport'), { ssr: false });
 
@@ -19,6 +20,7 @@ export default function ProductsClient() {
   const [editing, setEditing] = useState<Partial<Product> | null>(null);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [stockInOpen, setStockInOpen] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [activeCat, setActiveCat] = useState<string | 'all'>('all');
@@ -113,8 +115,11 @@ export default function ProductsClient() {
           <input className="bg-transparent outline-none text-sm flex-1" placeholder="Tìm theo tên hoặc SKU..."
                  value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
+        <button onClick={() => setStockInOpen(true)} className="btn-ghost shrink-0 !bg-emerald-50 !border-emerald-200 !text-emerald-700 hover:!bg-emerald-100">
+          <PackagePlus className="size-4" /> <span className="hidden sm:inline">Nhập hàng</span><span className="sm:hidden">Nhập</span>
+        </button>
         <button onClick={() => setBulkOpen(true)} className="btn-ghost shrink-0">
-          <FileSpreadsheet className="size-4" /> <span className="hidden sm:inline">Nhập hàng loạt</span><span className="sm:hidden">Excel</span>
+          <FileSpreadsheet className="size-4" /> <span className="hidden sm:inline">Nhập từ Excel</span><span className="sm:hidden">Excel</span>
         </button>
         <motion.button whileHover={{ y:-2 }} whileTap={{ scale: 0.97 }}
           onClick={() => setEditing({ active: true, stock: 0, min_stock: 5, price: 0, cost: 0, unit: 'cái' })}
@@ -411,6 +416,13 @@ export default function ProductsClient() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <StockIn
+        open={stockInOpen}
+        onClose={() => setStockInOpen(false)}
+        products={items}
+        onDone={() => { load(); setStockInOpen(false); }}
+      />
 
       <BarcodeScanner
         open={scannerOpen}

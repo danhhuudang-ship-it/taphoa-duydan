@@ -47,6 +47,16 @@ export default function CustomersClient() {
       name: editing.name, phone: editing.phone || null, email: editing.email || null,
       address: editing.address || null, notes: editing.notes || null,
     };
+    // Cho phép sửa thủ công doanh thu / điểm / nợ
+    if (editing.total_spent !== undefined && (editing as any).total_spent !== '') {
+      payload.total_spent = Number((editing as any).total_spent) || 0;
+    }
+    if (editing.points !== undefined && (editing as any).points !== '') {
+      payload.points = Number((editing as any).points) || 0;
+    }
+    if (editing.debt !== undefined && (editing as any).debt !== '') {
+      payload.debt = Number((editing as any).debt) || 0;
+    }
     const { error } = editing.id
       ? await supabase.from('customers').update(payload).eq('id', editing.id)
       : await supabase.from('customers').insert(payload);
@@ -150,6 +160,31 @@ export default function CustomersClient() {
                   <div><label className="text-xs">Email</label><input className="input mt-1" value={editing.email || ''} onChange={(e) => setEditing({ ...editing, email: e.target.value })} /></div>
                 </div>
                 <div><label className="text-xs">Địa chỉ</label><input className="input mt-1" value={editing.address || ''} onChange={(e) => setEditing({ ...editing, address: e.target.value })} /></div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs">Doanh thu (sửa thủ công)</label>
+                    <input type="number" className="input mt-1" value={editing.total_spent ?? 0}
+                      onChange={(e) => setEditing({ ...editing, total_spent: Number(e.target.value) })}
+                      onWheel={(e) => (e.target as HTMLInputElement).blur()} />
+                  </div>
+                  <div>
+                    <label className="text-xs">Đang nợ</label>
+                    <input type="number" className="input mt-1" value={editing.debt ?? 0}
+                      onChange={(e) => setEditing({ ...editing, debt: Number(e.target.value) })}
+                      onWheel={(e) => (e.target as HTMLInputElement).blur()} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs">Điểm tích lũy</label>
+                    <input type="number" className="input mt-1" value={editing.points ?? 0}
+                      onChange={(e) => setEditing({ ...editing, points: Number(e.target.value) })}
+                      onWheel={(e) => (e.target as HTMLInputElement).blur()} />
+                  </div>
+                  <div className="self-end text-[11px] text-slate-500 italic pb-2">
+                    Lãi gộp tự tính từ đơn hàng — không sửa được
+                  </div>
+                </div>
                 <div><label className="text-xs">Ghi chú</label><textarea className="input mt-1" rows={2} value={editing.notes || ''} onChange={(e) => setEditing({ ...editing, notes: e.target.value })} /></div>
               </div>
               <div className="shrink-0 px-5 py-3 border-t border-slate-200 bg-slate-100 flex justify-end gap-2 pb-[max(env(safe-area-inset-bottom),0.75rem)]">

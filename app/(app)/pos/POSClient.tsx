@@ -166,6 +166,14 @@ export default function POSClient() {
   const total = Math.max(0, subtotal - Number(discount || 0));
   const change = Math.max(0, Number(paid || 0) - total);
 
+  // Auto-sync paid = total khi mở modal ở mode 'paid'
+  useEffect(() => {
+    if (showPay && payMode === 'paid') {
+      setPaid(total);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showPay, payMode, total]);
+
   const addToCart = (p: Product) => {
     if (p.stock <= 0) return toast.error('Hết hàng');
     setCart((cur) => {
