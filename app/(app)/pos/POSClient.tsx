@@ -192,6 +192,28 @@ export default function POSClient() {
     });
   };
 
+  /** Xử lý input từ cây quét USB/Bluetooth — gõ số rồi Enter */
+  const handleBarcodeInput = (code: string) => {
+    const c = code.trim();
+    if (!c) return;
+    let found = products.find((p) => (p.barcode || '').trim() === c);
+    if (!found) found = products.find((p) => p.sku.trim() === c);
+    if (!found) {
+      const lc = c.toLowerCase();
+      found = products.find((p) => p.name.toLowerCase().includes(lc) || p.sku.toLowerCase().includes(lc));
+    }
+    if (found) {
+      addToCart(found);
+      toast.success('Đã thêm: ' + found.name);
+      setSearch(''); // clear ô search để quét tiếp
+    } else {
+      // Không tìm thấy → mở modal gán barcode
+      setLinkBarcode(c);
+      setLinkSearch('');
+      setSearch('');
+    }
+  };
+
   const updateQty = (pid: string, q: number) =>
     setCart((cur) => cur.map((i) => i.product_id === pid ? { ...i, quantity: Math.max(1, Math.min(q, i.stock)) } : i));
 
@@ -345,9 +367,15 @@ export default function POSClient() {
             <Search className="size-4 text-slate-400" />
             <input
               className="bg-transparent outline-none text-[15px] flex-1 text-slate-700"
-              placeholder="Tìm tên/SKU/mã vạch..."
+              placeholder="Tìm tên/SKU/mã vạch... (Enter = quét)"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleBarcodeInput(search);
+                }
+              }}
             />
             <button
               type="button"
