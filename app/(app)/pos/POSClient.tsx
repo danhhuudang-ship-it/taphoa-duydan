@@ -98,6 +98,8 @@ export default function POSClient() {
   const [newCustomerPhone, setNewCustomerPhone] = useState('');
   const [creatingCustomer, setCreatingCustomer] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [linkBarcode, setLinkBarcode] = useState<string | null>(null);
+  const [linkSearch, setLinkSearch] = useState('');
 
   useEffect(() => {
     // 1) HIỆN cache localStorage NGAY LẬP TỨC (không đợi network)
@@ -225,6 +227,8 @@ export default function POSClient() {
                      (activeCustomerId !== customerId
                        ? customers.find((c) => c.id === activeCustomerId)
                        : undefined);
+    // CHỐT số tiền trả: ghi nợ thì tôn trọng giá trị paid (có thể = 0), trả đủ thì = total
+    const finalPaid = payMode === 'debt' ? Number(paid || 0) : total;
     const payload = {
       p_code: code,
       p_customer_id: activeCustomerId || null,
@@ -236,7 +240,7 @@ export default function POSClient() {
       p_discount: Number(discount || 0),
       p_tax: 0,
       p_payment_method: paymentMethod,
-      p_paid: Number(paid || total),
+      p_paid: finalPaid,
       p_notes: null,
     };
     const { error } = await supabase.rpc('create_order', payload);
@@ -253,9 +257,9 @@ export default function POSClient() {
       discount: Number(discount || 0),
       tax: 0,
       total,
-      paid: Number(paid || total),
+      paid: finalPaid,
       payment_method: paymentMethod,
-      status: 'completed',
+      status: payMode === 'debt' && finalPaid < total ? 'debt' : 'completed',
       created_at: new Date().toISOString(),
     };
     const itemSnapshot: OrderItem[] = cart.map((i, idx) => ({
@@ -295,7 +299,7 @@ export default function POSClient() {
               price: i.price - (i.discount || 0),
               total: (i.price - (i.discount || 0)) * i.quantity,
             })),
-            subtotal, discount: Number(discount || 0), total, paid: Number(paid || total), paymentMethod,
+            subtotal, discount: Number(discount || 0), total, paid: finalPaid, paymentMethod,
           }),
         }).catch(() => {});
       }
@@ -808,18 +812,103 @@ export default function POSClient() {
         open={scannerOpen}
         onClose={() => setScannerOpen(false)}
         onScan={(code) => {
-          const found = products.find(
-            (p) => (p.barcode || '') === code || p.sku === code
-          );
+          const c = code.trim();
+          // 1) Match exact barcode
+          let found = products.find((p) => (p.barcode || '').trim() === c);
+          // 2) Match exact SKU
+          if (!found) found = products.find((p) => p.sku.trim() === c);
+          // 3) Match partial (name/sku chứa code)
+          if (!found) {
+            const lc = c.toLowerCase();
+            found = products.find((p) =>
+              p.name.toLowerCase().includes(lc) ||
+              p.sku.toLowerCase().includes(lc)
+            );
+          }
           if (found) {
             addToCart(found);
             toast.success('Đã thêm: ' + found.name);
           } else {
-            toast.error('Không tìm thấy SP với mã: ' + code);
-            setSearch(code);
+            // Không tìm thấy → mở modal gán barcode vào SP có sẵn
+            setLinkBarcode(c);
+            setLinkSearch('');
           }
         }}
       />
+
+      {/* === Modal: gán mã vạch vào SP có sẵn === */}
+      {linkBarcode && (
+        <div className="fixed inset-0 z-[75] flex items-end md:items-center justify-center bg-slate-900/50 p-0 md:p-4" onClick={() => setLinkBarcode(null)}>
+          <div className="bg-white rounded-t-3xl md:rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden shadow-xl border border-slate-200" onClick={(e) => e.stopPropagation()}>
+            <div className="shrink-0 px-5 py-4 border-b border-slate-200 bg-amber-50 relative">
+              <div className="md:hidden mx-auto absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-slate-300" />
+              <div className="font-bold text-slate-900">Mã chưa được gán</div>
+              <div className="text-sm text-slate-600 mt-1">Mã vạch <code className="px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[11px]">{linkBarcode}</code> chưa được liên kết với sản phẩm nào.</div>
+              <div className="text-xs text-slate-500 mt-1">Chọn 1 SP bên dưới để gán → lần sau quét sẽ tự nhận.</div>
+              <button onClick={() => setLinkBarcode(null)} className="absolute top-2 right-2 size-9 rounded-lg hover:bg-white/60 flex items-center justify-center">
+                <X className="size-5" />
+              </button>
+            </div>
+            <div className="shrink-0 p-3 border-b border-slate-200 bg-slate-50">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-slate-200">
+                <Search className="size-4 text-slate-400" />
+                <input
+                  autoFocus
+                  className="bg-transparent outline-none text-[15px] flex-1 text-slate-800"
+                  placeholder="Tìm SP để gán mã..."
+                  value={linkSearch}
+                  onChange={(e) => setLinkSearch(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto p-2 space-y-1">
+              {products
+                .filter((p) => {
+                  const q = linkSearch.trim().toLowerCase();
+                  return !q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
+                })
+                .slice(0, 100)
+                .map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={async () => {
+                      const supabase = createClient();
+                      const { error } = await supabase
+                        .from('products')
+                        .update({ barcode: linkBarcode })
+                        .eq('id', p.id);
+                      if (error) return toast.error(error.message);
+                      toast.success(`Đã gán mã ${linkBarcode} cho ${p.name}`);
+                      // Update local state + add to cart
+                      const updated = { ...p, barcode: linkBarcode } as Product;
+                      setProducts((prev) => prev.map((x) => x.id === p.id ? updated : x));
+                      addToCart(updated);
+                      setLinkBarcode(null);
+                    }}
+                    className="w-full text-left p-2.5 rounded-xl bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 flex items-center gap-3 transition active:scale-[0.98]"
+                  >
+                    <div className="size-10 rounded-lg bg-gradient-to-br from-indigo-50 to-violet-100 flex items-center justify-center text-lg shrink-0 overflow-hidden">
+                      {p.image_url ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img src={p.image_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                      ) : '📦'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm text-slate-900 truncate">{p.name}</div>
+                      <div className="text-[11px] text-slate-500 font-mono">
+                        {p.sku}{p.barcode ? ` · Mã hiện: ${p.barcode}` : ' · Chưa có mã vạch'}
+                      </div>
+                    </div>
+                    <div className="text-xs font-bold text-indigo-700 shrink-0">{formatCurrency(p.price)}</div>
+                  </button>
+                ))}
+            </div>
+            <div className="shrink-0 px-5 py-3 border-t border-slate-200 bg-slate-50 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+              <button onClick={() => setLinkBarcode(null)} className="btn-ghost w-full">Bỏ qua</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* === HIDDEN PRINT RECEIPT === */}
       {lastOrder && (

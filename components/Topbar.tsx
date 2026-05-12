@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Search, Sparkles } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import NotificationBell from '@/components/NotificationBell';
+import MobileMenu from '@/components/MobileMenu';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Topbar({ title }: { title: string }) {
@@ -18,7 +19,8 @@ export default function Topbar({ title }: { title: string }) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-3 px-4 md:px-8 py-3 bg-white/95 backdrop-blur border-b border-slate-200">
+    <header className="sticky top-0 z-30 flex items-center gap-2 px-3 md:px-8 py-3 bg-white/95 backdrop-blur border-b border-slate-200">
+      <MobileMenu />
       <Link href="/dashboard" className="md:hidden flex items-center gap-2 min-w-0" title="Tổng quan">
         <div className="relative shrink-0">
           <div className="absolute inset-0 rounded-xl blur-sm opacity-60 bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-pink-500" />
