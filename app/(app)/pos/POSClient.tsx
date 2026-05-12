@@ -153,6 +153,55 @@ export default function POSClient() {
     return () => window.removeEventListener('keydown', onKey);
   }, [cart.length]);
 
+  // === GLOBAL BARCODE LISTENER ===
+  // Cây quét mã vạch USB/Bluetooth gõ rất nhanh + kết thúc bằng Enter.
+  // Bắt pattern này ngay cả khi không focus ô search.
+  useEffect(() => {
+    let buffer = '';
+    let lastKeyTime = 0;
+    const FAST_TYPING_MS = 50; // gap < 50ms giữa các phím = scanner
+
+    const onKey = (e: KeyboardEvent) => {
+      // Bỏ qua khi user đang gõ trong INPUT/TEXTAREA/SELECT (cho search box, modal...)
+      const t = e.target as HTMLElement | null;
+      if (
+        t && (
+          t.tagName === 'INPUT' ||
+          t.tagName === 'TEXTAREA' ||
+          t.tagName === 'SELECT' ||
+          t.isContentEditable
+        )
+      ) return;
+
+      // Bỏ qua khi đang ở payment modal / scanner modal / cart drawer
+      if (showPay || scannerOpen || cartOpen || linkBarcode) return;
+
+      const now = Date.now();
+
+      if (e.key === 'Enter') {
+        if (buffer.length >= 3) {
+          e.preventDefault();
+          handleBarcodeInput(buffer);
+        }
+        buffer = '';
+        return;
+      }
+
+      // Chỉ accumulate ký tự thường (a-z, 0-9, -)
+      if (e.key.length !== 1) return;
+      if (!/[a-zA-Z0-9\-]/.test(e.key)) return;
+
+      // Reset buffer nếu gap quá lớn (user gõ tay)
+      if (now - lastKeyTime > 500) buffer = '';
+      buffer += e.key;
+      lastKeyTime = now;
+    };
+
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products, showPay, scannerOpen, cartOpen, linkBarcode]);
+
   // Dùng deferredValue cho search → input gõ mượt, list filter chậm hơn vài ms
   const deferredSearch = useDeferredValue(search);
   const filtered = useMemo(() => {
