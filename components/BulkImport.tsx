@@ -17,6 +17,7 @@ type Row = {
   description: string;
   category_name: string;
   image_url: string;
+  barcode: string;
   _ok: boolean;
   _err: string;
 };
@@ -34,12 +35,12 @@ function normalizeImageUrl(input: string): string {
   return url;
 }
 
-const TEMPLATE_HEADERS = ['SKU', 'Tên sản phẩm', 'Giá bán', 'Giá vốn', 'Tồn kho', 'Đơn vị', 'Danh mục', 'Mô tả', 'Ảnh URL'];
+const TEMPLATE_HEADERS = ['SKU', 'Tên sản phẩm', 'Giá bán', 'Giá vốn', 'Tồn kho', 'Đơn vị', 'Mã vạch', 'Danh mục', 'Mô tả', 'Ảnh URL'];
 const NAME_ONLY_TEMPLATE_HEADERS = ['Tên sản phẩm'];
 const SAMPLE_ROWS = [
-  ['SP001', 'Coca-Cola lon 330ml',   12000,  9000,  50, 'lon',  'Đồ uống',         'Lon nước ngọt 330ml', 'https://drive.google.com/file/d/ABC123/view?usp=sharing'],
-  ['SP002', 'Mì gói Hảo Hảo',         5000,  3500, 100, 'gói',  'Đồ ăn nhanh',     '',                     ''],
-  ['SP003', 'Bút bi Thiên Long',      8000,  5000,  30, 'cây',  'Văn phòng phẩm',  '',                     ''],
+  ['SP001', 'Coca-Cola lon 330ml',   12000,  9000,  50, 'lon',  '8934588063015', 'Đồ uống',         'Lon nước ngọt 330ml', 'https://drive.google.com/file/d/ABC123/view?usp=sharing'],
+  ['SP002', 'Mì gói Hảo Hảo',         5000,  3500, 100, 'gói',  '8936036020014', 'Đồ ăn nhanh',     '',                     ''],
+  ['SP003', 'Bút bi Thiên Long',      8000,  5000,  30, 'cây',  '',              'Văn phòng phẩm',  '',                     ''],
 ];
 const NAME_ONLY_SAMPLE_ROWS = [
   ['Thùng 30 gói mì Hảo Hảo tôm chua cay 75g'],
@@ -115,6 +116,7 @@ export default function BulkImport({
         const category_name = String(r['Danh mục'] || r['category'] || '').trim();
         const rawImage = String(r['Ảnh URL'] || r['Ảnh'] || r['image_url'] || r['image'] || '').trim();
         const image_url = normalizeImageUrl(rawImage);
+        const barcode = String(r['Mã vạch'] || r['Mã'] || r['barcode'] || '').trim();
 
         let _err = '';
         if (!name) _err = 'Thiếu tên SP';
@@ -139,7 +141,7 @@ export default function BulkImport({
         if (sku) seen.add(sku);
 
         return {
-          sku, name, price, cost, stock, unit, description, category_name, image_url,
+          sku, name, price, cost, stock, unit, description, category_name, image_url, barcode,
           _ok: !_err, _err,
         };
       }).filter(r => r.sku || r.name); // bỏ dòng trống
@@ -198,6 +200,7 @@ export default function BulkImport({
         description: r.description || null,
         category_id: catMap.get(r.category_name.toLowerCase().trim()) || null,
         image_url: r.image_url || null,
+        barcode: r.barcode || null,
         active: true,
       }));
 
